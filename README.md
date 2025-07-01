@@ -2,6 +2,8 @@
 
 A single-page web application that helps users create better prompts for environmental data analysis using AI assistants like Claude, ChatGPT, and others.
 
+https://pouliens.github.io/LLM-Prompt-Improver/
+
 ## 🌱 Features
 
 - **Interactive Prompt Builder**: Form-based interface with expert personas, task descriptions, context, and format options
