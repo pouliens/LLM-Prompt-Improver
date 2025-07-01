@@ -53,7 +53,7 @@ class PromptGenerator {
         this.examples = {
             seismic: {
                 persona: 'Data Analyst',
-                task: 'Analyze seismic sensor data from BGS monitoring network and identify unusual activity patterns or potential earthquake precursors',
+                task: 'Analyse seismic sensor data from BGS monitoring network and identify unusual activity patterns or potential earthquake precursors',
                 context: 'BGS seismic sensor data from 25 monitoring stations across the UK covering January-December 2025. Includes magnitude readings, frequency analysis, and location coordinates with 1-minute resolution.',
                 format: 'detailed analysis with step-by-step methodology',
                 artifact: true
@@ -62,7 +62,7 @@ class PromptGenerator {
                 persona: 'Trend Analyst',
                 task: 'Evaluate groundwater level trends from BGS borehole monitoring network and forecast seasonal variations',
                 context: 'BGS groundwater monitoring data from 150 boreholes across England and Wales, collected hourly from 2020-2025. Dataset includes water table depths, aquifer types, and rainfall correlation data.',
-                format: 'visualizations with interpretations',
+                format: 'visualisations with interpretations',
                 artifact: true
             },
             temperature: {
@@ -168,8 +168,8 @@ class PromptGenerator {
             'Data Summarizer': 'Create concise, well-structured summaries of key findings. Present information in logical sections with clear headings and bullet points for easy scanning.',
             'Technical Interpreter': 'Translate technical sensor readings into clear, practical language. Explain what the measurements mean in real-world terms and their implications.',
             'Monitoring Specialist': 'Focus on real-time analysis, threshold monitoring, and alert conditions. Identify when values exceed normal ranges and suggest monitoring protocols.',
-            'Trend Analyst': 'Analyze temporal patterns, seasonal variations, and long-term trends. Provide forecasting insights and identify emerging patterns in the data.',
-            'Report Generator': 'Create comprehensive, professional reports with visualizations. Structure findings with executive summaries, detailed analysis, and actionable recommendations.'
+            'Trend Analyst': 'Analyse temporal patterns, seasonal variations, and long-term trends. Provide forecasting insights and identify emerging patterns in the data.',
+            'Report Generator': 'Create comprehensive, professional reports with visualisations. Structure findings with executive summaries, detailed analysis, and actionable recommendations.'
         };
 
         return instructions[persona] || '';
@@ -410,7 +410,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-    // Performance optimization: debounce preview updates
+    // Performance optimisation: debounce preview updates
     let updateTimeout;
     const originalUpdatePreview = generator.updatePreview.bind(generator);
     generator.updatePreview = () => {
