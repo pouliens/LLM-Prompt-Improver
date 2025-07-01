@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Environmental Data Prompt Generator</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1><i class="fas fa-leaf"></i> Environmental Data Prompt Generator</h1>
+            <p class="subtitle">Create better prompts for environmental data analysis with AI assistants</p>
+        </header>
+
+        <main class="main-content">
+            <div class="form-section">
+                <h2>Build Your Prompt</h2>
+                
+                <form id="promptForm" class="prompt-form">
+                    <div class="form-group">
+                        <label for="personaType">
+                            <i class="fas fa-user-tie"></i> Expert Persona
+                            <span class="tooltip" data-tooltip="Choose between predefined expert personas or create your own custom persona">
+                                <i class="fas fa-info-circle"></i>
+                            </span>
+                        </label>
+                        
+                        <div class="persona-toggle">
+                            <label class="toggle-option">
+                                <input type="radio" name="personaType" value="predefined" checked>
+                                <span class="toggle-label">
+                                    <i class="fas fa-list"></i> Predefined Personas
+                                </span>
+                            </label>
+                            <label class="toggle-option">
+                                <input type="radio" name="personaType" value="custom">
+                                <span class="toggle-label">
+                                    <i class="fas fa-edit"></i> Custom Persona
+                                </span>
+                            </label>
+                        </div>
+
+                        <div id="predefinedPersonaSection" class="persona-section active">
+                            <select id="persona" name="persona" required>
+                                <option value="">Select an expert persona...</option>
+                                <option value="Environmental Data Scientist" data-description="Expert in statistical analysis, modeling, and interpretation of all types of environmental datasets">Environmental Data Scientist</option>
+                                <option value="Climate & Atmospheric Specialist" data-description="Expert in climate data, weather patterns, air quality, and atmospheric analysis">Climate & Atmospheric Specialist</option>
+                                <option value="Ecology & Biodiversity Analyst" data-description="Specialist in species data, ecosystem analysis, and biodiversity assessment">Ecology & Biodiversity Analyst</option>
+                                <option value="Environmental Policy & Sustainability Advisor" data-description="Translates environmental data into policy recommendations and sustainability strategies">Environmental Policy & Sustainability Advisor</option>
+                                <option value="Water & Marine Systems Specialist" data-description="Expert in hydrology, water quality, oceanography, and aquatic ecosystem data">Water & Marine Systems Specialist</option>
+                                <option value="Student/Researcher" data-description="Learning environmental science with guidance on data analysis and interpretation techniques">Student/Researcher</option>
+                                <option value="General Public/Citizen" data-description="Non-expert seeking clear, accessible explanations of environmental data and its implications">General Public/Citizen</option>
+                            </select>
+                            <div id="personaDescription" class="persona-description"></div>
+                        </div>
+
+                        <div id="customPersonaSection" class="persona-section">
+                            <div class="custom-persona-inputs">
+                                <div class="input-group">
+                                    <label for="customPersonaTitle">
+                                        <i class="fas fa-tag"></i> Persona Title
+                                        <span class="tooltip" data-tooltip="e.g., Marine Biology Expert, Environmental Engineer">
+                                            <i class="fas fa-info-circle"></i>
+                                        </span>
+                                    </label>
+                                    <input type="text" id="customPersonaTitle" name="customPersonaTitle" placeholder="e.g., Marine Biology Expert, Environmental Engineer, GIS Specialist..." />
+                                </div>
+                                <div class="input-group">
+                                    <label for="customPersonaExpertise">
+                                        <i class="fas fa-brain"></i> Areas of Expertise
+                                        <span class="tooltip" data-tooltip="Describe the specific knowledge areas and skills this persona should have">
+                                            <i class="fas fa-info-circle"></i>
+                                        </span>
+                                    </label>
+                                    <textarea id="customPersonaExpertise" name="customPersonaExpertise" placeholder="e.g., Specializes in coastal ecosystem modeling, satellite imagery analysis, and marine biodiversity assessment. Expert in R, Python, and GIS tools..." rows="3"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="task">
+                            <i class="fas fa-tasks"></i> Task Description
+                            <span class="tooltip" data-tooltip="Describe what you want to accomplish with your environmental data">
+                                <i class="fas fa-info-circle"></i>
+                            </span>
+                        </label>
+                        <textarea id="task" name="task" placeholder="e.g., Analyze temperature trends in my dataset, Create visualizations for air quality data, Interpret biodiversity survey results..." rows="3" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="context">
+                            <i class="fas fa-info"></i> Context & Data Details
+                            <span class="tooltip" data-tooltip="Provide background information about your data, study area, time period, etc.">
+                                <i class="fas fa-info-circle"></i>
+                            </span>
+                        </label>
+                        <textarea id="context" name="context" placeholder="e.g., Dataset contains 5 years of daily temperature readings from 20 weather stations across California. Looking to identify climate change impacts..." rows="4"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="format">
+                            <i class="fas fa-file-alt"></i> Output Format
+                            <span class="tooltip" data-tooltip="Specify how you want the results presented">
+                                <i class="fas fa-info-circle"></i>
+                            </span>
+                        </label>
+                        <select id="format" name="format">
+                            <option value="">Choose output format...</option>
+                            <option value="detailed analysis with step-by-step methodology">Detailed Analysis with Methodology</option>
+                            <option value="summary report with key findings">Summary Report</option>
+                            <option value="code examples with explanations">Code Examples with Explanations</option>
+                            <option value="visualizations with interpretations">Visualizations with Interpretations</option>
+                            <option value="policy recommendations">Policy Recommendations</option>
+                            <option value="beginner-friendly explanation">Beginner-Friendly Explanation</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="artifact" name="artifact">
+                            <span class="checkmark"></span>
+                            <i class="fas fa-chart-bar"></i> Create Interactive Artifact
+                            <span class="tooltip" data-tooltip="Generate code/visualizations that can be displayed in Claude's Artifacts or similar interactive windows">
+                                <i class="fas fa-info-circle"></i>
+                            </span>
+                        </label>
+                    </div>
+                </form>
+            </div>
+
+            <div class="preview-section">
+                <div class="preview-header">
+                    <h3><i class="fas fa-eye"></i> Live Preview</h3>
+                    <div class="preview-actions">
+                        <button id="copyBtn" class="copy-btn" disabled>
+                            <i class="fas fa-copy"></i> Copy to Clipboard
+                        </button>
+                        <button id="downloadBtn" class="download-btn" disabled>
+                            <i class="fas fa-download"></i> Download
+                        </button>
+                    </div>
+                </div>
+                <div id="promptPreview" class="prompt-preview">
+                    <p class="placeholder-text">Fill out the form to see your generated prompt here...</p>
+                </div>
+            </div>
+        </main>
+
+        <section class="examples-section">
+            <h3><i class="fas fa-lightbulb"></i> Example Prompts</h3>
+            <div class="examples-grid">
+                <div class="example-card">
+                    <h4>Climate Data Analysis</h4>
+                    <p><strong>Persona:</strong> Climate & Atmospheric Specialist</p>
+                    <p><strong>Task:</strong> Analyze temperature anomalies and identify extreme weather events</p>
+                    <button class="load-example-btn" data-example="climate">Load Example</button>
+                </div>
+                <div class="example-card">
+                    <h4>Biodiversity Assessment</h4>
+                    <p><strong>Persona:</strong> Ecology & Biodiversity Analyst</p>
+                    <p><strong>Task:</strong> Evaluate species richness and identify conservation priorities</p>
+                    <button class="load-example-btn" data-example="biodiversity">Load Example</button>
+                </div>
+                <div class="example-card">
+                    <h4>Water Quality Study</h4>
+                    <p><strong>Persona:</strong> Water & Marine Systems Specialist</p>
+                    <p><strong>Task:</strong> Assess pollution levels and recommend remediation strategies</p>
+                    <button class="load-example-btn" data-example="water">Load Example</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="tips-section">
+            <h3><i class="fas fa-tips"></i> Tips for Better Prompts</h3>
+            <div class="tips-grid">
+                <div class="tip-card">
+                    <i class="fas fa-bullseye"></i>
+                    <h4>Be Specific</h4>
+                    <p>Include details about your data type, size, time period, and geographic scope.</p>
+                </div>
+                <div class="tip-card">
+                    <i class="fas fa-chart-line"></i>
+                    <h4>Define Goals</h4>
+                    <p>Clearly state what insights, patterns, or outcomes you're looking for.</p>
+                </div>
+                <div class="tip-card">
+                    <i class="fas fa-cogs"></i>
+                    <h4>Mention Tools</h4>
+                    <p>Specify if you prefer certain programming languages, libraries, or analysis methods.</p>
+                </div>
+                <div class="tip-card">
+                    <i class="fas fa-users"></i>
+                    <h4>Know Your Audience</h4>
+                    <p>Choose the right persona based on your expertise level and intended use.</p>
+                </div>
+            </div>
+        </section>
+
+        <footer class="footer">
+            <p>&copy; 2024 Environmental Data Prompt Generator. Built for better AI-assisted environmental analysis.</p>
+        </footer>
+    </div>
+
+    <div id="toast" class="toast"></div>
+    <script src="script.js"></script>
+</body>
+</html>
