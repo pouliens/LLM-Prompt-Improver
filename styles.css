@@ -940,10 +940,12 @@ select option {
     padding: 15px 20px;
     border-radius: 8px;
     box-shadow: 0 5px 15px var(--shadow);
-    transform: translateX(400px);
+    transform: translateX(calc(100% + 40px));
     transition: transform 0.3s ease;
     z-index: 1000;
     font-weight: 500;
+    max-width: 350px;
+    word-wrap: break-word;
 }
 
 .toast.show {

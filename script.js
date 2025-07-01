@@ -73,7 +73,16 @@ class PromptGenerator {
 
         // Copy query buttons
         document.querySelectorAll('.copy-query-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => this.copyQuery(e.target.dataset.query));
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Get the query from the button or its parent
+                const query = e.target.dataset.query || e.target.closest('.copy-query-btn').dataset.query;
+                if (query) {
+                    this.copyQuery(query);
+                }
+            });
         });
 
         // Datastreams checkbox listeners
@@ -413,22 +422,36 @@ class PromptGenerator {
     async copyQuery(query) {
         if (!query) return;
 
+        // Prevent rapid successive calls
+        if (this.copyInProgress) {
+            return;
+        }
+        
+        this.copyInProgress = true;
+
         try {
             await navigator.clipboard.writeText(query);
-            this.showToast('Query copied to clipboard!', 'success');
+            this.showToast(`Query copied: "${query.substring(0, 30)}${query.length > 30 ? '...' : ''}"`, 'success');
         } catch (err) {
             // Fallback for older browsers
             const textArea = document.createElement('textarea');
             textArea.value = query;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-9999px';
             document.body.appendChild(textArea);
             textArea.select();
             try {
                 document.execCommand('copy');
-                this.showToast('Query copied to clipboard!', 'success');
+                this.showToast(`Query copied: "${query.substring(0, 30)}${query.length > 30 ? '...' : ''}"`, 'success');
             } catch (fallbackErr) {
                 this.showToast('Failed to copy query', 'error');
             }
             document.body.removeChild(textArea);
+        } finally {
+            // Reset flag after a short delay to prevent rapid clicking issues
+            setTimeout(() => {
+                this.copyInProgress = false;
+            }, 300);
         }
     }
 
