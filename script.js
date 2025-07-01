@@ -51,25 +51,25 @@ class PromptGenerator {
 
     setupExamples() {
         this.examples = {
-            climate: {
-                persona: 'Climate & Atmospheric Specialist',
-                task: 'Analyze temperature anomalies in my climate dataset and identify potential extreme weather events or climate change indicators',
-                context: 'Dataset contains 30 years of daily temperature readings from 15 weather stations across the Pacific Northwest. Data includes min/max temperatures, precipitation, and humidity measurements from 1994-2024.',
+            seismic: {
+                persona: 'Data Analyst',
+                task: 'Analyze seismic sensor data from BGS monitoring network and identify unusual activity patterns or potential earthquake precursors',
+                context: 'BGS seismic sensor data from 25 monitoring stations across the UK covering January-December 2025. Includes magnitude readings, frequency analysis, and location coordinates with 1-minute resolution.',
                 format: 'detailed analysis with step-by-step methodology',
                 artifact: true
             },
-            biodiversity: {
-                persona: 'Ecology & Biodiversity Analyst',
-                task: 'Evaluate species richness patterns and identify priority areas for conservation based on biodiversity metrics',
-                context: 'Field survey data from 50 forest plots covering 500 square kilometers. Includes species counts, abundance data, habitat characteristics, and GPS coordinates collected over 3 field seasons.',
+            groundwater: {
+                persona: 'Trend Analyst',
+                task: 'Evaluate groundwater level trends from BGS borehole monitoring network and forecast seasonal variations',
+                context: 'BGS groundwater monitoring data from 150 boreholes across England and Wales, collected hourly from 2020-2025. Dataset includes water table depths, aquifer types, and rainfall correlation data.',
                 format: 'visualizations with interpretations',
                 artifact: true
             },
-            water: {
-                persona: 'Water & Marine Systems Specialist',
-                task: 'Assess water quality trends and recommend pollution remediation strategies for urban watersheds',
-                context: 'Monthly water quality measurements from 12 monitoring stations along 3 rivers over 5 years. Parameters include pH, dissolved oxygen, nitrates, phosphates, turbidity, and heavy metals.',
-                format: 'policy recommendations',
+            temperature: {
+                persona: 'Monitoring Specialist',
+                task: 'Monitor soil temperature sensor data from BGS network and identify threshold exceedances and anomalous readings',
+                context: 'BGS soil temperature sensors deployed at 50 sites measuring at 10cm, 30cm, and 100cm depths. Real-time data collection from March 2025 with automated quality control flags.',
+                format: 'summary report with key findings',
                 artifact: false
             }
         };
@@ -164,13 +164,12 @@ class PromptGenerator {
         }
         
         const instructions = {
-            'Environmental Data Scientist': 'Use appropriate statistical methods, provide confidence intervals where relevant, and explain the significance of your findings. Include data quality assessments and limitations.',
-            'Climate & Atmospheric Specialist': 'Consider climate variability, reference relevant climate indices, and discuss implications for future climate projections. Include seasonal and long-term trend analysis.',
-            'Ecology & Biodiversity Analyst': 'Apply ecological theory, consider species interactions and habitat requirements, and reference conservation biology principles. Include diversity indices and ecological significance.',
-            'Environmental Policy & Sustainability Advisor': 'Translate technical findings into policy-relevant language, consider economic and social implications, and provide actionable recommendations for stakeholders.',
-            'Water & Marine Systems Specialist': 'Consider hydrological processes, water chemistry principles, and ecosystem impacts. Reference water quality standards and regulatory frameworks.',
-            'Student/Researcher': 'Provide educational context, explain methodologies clearly, suggest further reading, and highlight learning opportunities in your analysis.',
-            'General Public/Citizen': 'Use accessible language, avoid excessive jargon, provide context for technical terms, and explain the practical implications for communities and daily life.'
+            'Data Analyst': 'Focus on statistical patterns, trends, and anomalies in the sensor data. Provide quantitative insights with confidence levels and highlight significant changes or outliers.',
+            'Data Summarizer': 'Create concise, well-structured summaries of key findings. Present information in logical sections with clear headings and bullet points for easy scanning.',
+            'Technical Interpreter': 'Translate technical sensor readings into clear, practical language. Explain what the measurements mean in real-world terms and their implications.',
+            'Monitoring Specialist': 'Focus on real-time analysis, threshold monitoring, and alert conditions. Identify when values exceed normal ranges and suggest monitoring protocols.',
+            'Trend Analyst': 'Analyze temporal patterns, seasonal variations, and long-term trends. Provide forecasting insights and identify emerging patterns in the data.',
+            'Report Generator': 'Create comprehensive, professional reports with visualizations. Structure findings with executive summaries, detailed analysis, and actionable recommendations.'
         };
 
         return instructions[persona] || '';
