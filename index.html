@@ -18,6 +18,14 @@
             <p class="explanation-text">
                 Better prompts lead to better results. Create effective prompts by defining the persona, task, context, and format.
             </p>
+            <div class="action-buttons">
+                <button id="loadRandomBtn" class="action-btn">
+                    <i class="fas fa-random"></i> Sample Prompt
+                </button>
+                <button id="resetFormBtn" class="action-btn">
+                    <i class="fas fa-refresh"></i> Reset Form
+                </button>
+            </div>
         </section>
 
         <main class="main-content">
@@ -36,11 +44,11 @@
                         <div class="persona-toggle">
                             <label class="toggle-option">
                                 <input type="radio" name="personaType" value="predefined" checked>
-                                <span class="toggle-label">Predefined</span>
+                                <span class="toggle-label">Predefined Persona</span>
                             </label>
                             <label class="toggle-option">
                                 <input type="radio" name="personaType" value="custom">
-                                <span class="toggle-label">Custom</span>
+                                <span class="toggle-label">Custom Persona</span>
                             </label>
                         </div>
 
@@ -117,6 +125,70 @@
                                 <i class="fas fa-info-circle"></i>
                             </span>
                         </label>
+                    </div>
+
+                    <div class="form-group checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="advancedToggle" name="advancedToggle">
+                            <span class="checkmark"></span>
+                            <i class="fas fa-cog"></i> Advanced Options
+                            <span class="tooltip" data-tooltip="Specify detailed parameters for BGS sensor data queries">
+                                <i class="fas fa-info-circle"></i>
+                            </span>
+                        </label>
+                    </div>
+
+                    <div id="advancedOptions" class="advanced-options">
+                        <div class="form-group">
+                            <label for="datastreams">
+                                <i class="fas fa-stream"></i> Datastreams of Interest
+                                <span class="tooltip" data-tooltip="Select specific datastreams to focus on">
+                                    <i class="fas fa-info-circle"></i>
+                                </span>
+                            </label>
+                            <select id="datastreams" name="datastreams" multiple>
+                                <option value="seismic">Seismic Activity</option>
+                                <option value="groundwater">Groundwater Levels</option>
+                                <option value="temperature">Soil Temperature</option>
+                                <option value="precipitation">Precipitation</option>
+                                <option value="air_quality">Air Quality</option>
+                                <option value="wind">Wind Speed/Direction</option>
+                                <option value="pressure">Atmospheric Pressure</option>
+                                <option value="humidity">Humidity</option>
+                            </select>
+                        </div>
+
+                        <div class="advanced-grid">
+                            <div class="form-group">
+                                <label for="timeInterval">
+                                    <i class="fas fa-clock"></i> Time Interval (minutes)
+                                    <span class="tooltip" data-tooltip="Data sampling interval in minutes">
+                                        <i class="fas fa-info-circle"></i>
+                                    </span>
+                                </label>
+                                <input type="number" id="timeInterval" name="timeInterval" placeholder="e.g., 15" min="1" max="1440">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="numReadings">
+                                    <i class="fas fa-hashtag"></i> Number of Readings
+                                    <span class="tooltip" data-tooltip="Maximum number of observations to retrieve">
+                                        <i class="fas fa-info-circle"></i>
+                                    </span>
+                                </label>
+                                <input type="number" id="numReadings" name="numReadings" placeholder="e.g., 100" min="1" max="10000">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="startDate">
+                                    <i class="fas fa-calendar"></i> Start Date
+                                    <span class="tooltip" data-tooltip="Starting date for data retrieval">
+                                        <i class="fas fa-info-circle"></i>
+                                    </span>
+                                </label>
+                                <input type="date" id="startDate" name="startDate">
+                            </div>
+                        </div>
                     </div>
                 </form>
             </div>

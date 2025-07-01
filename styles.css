@@ -69,8 +69,45 @@ body {
 .explanation-text {
     font-size: 1rem;
     color: var(--dark-gray);
-    margin: 0;
+    margin: 0 0 20px 0;
     font-weight: 400;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.action-btn {
+    background: var(--secondary-green);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    min-width: 140px;
+    height: 44px;
+    justify-content: center;
+    flex: 1;
+    max-width: 180px;
+}
+
+.action-btn:hover {
+    background: var(--primary-green);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px var(--shadow);
+}
+
+.action-btn:active {
+    transform: translateY(0);
 }
 
 /* Main Content Layout */
@@ -295,6 +332,50 @@ select option {
     width: 16px;
 }
 
+/* Advanced Options Styles */
+.advanced-options {
+    display: none;
+    margin-top: 20px;
+    padding: 25px;
+    background: var(--light-gray);
+    border-radius: 10px;
+    border: 1px solid var(--medium-gray);
+    animation: fadeIn 0.3s ease;
+}
+
+.advanced-options.show {
+    display: block;
+}
+
+.advanced-options .form-group:first-child {
+    margin-bottom: 25px;
+}
+
+.advanced-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 25px;
+    margin-top: 25px;
+}
+
+/* Multi-select styling */
+select[multiple] {
+    min-height: 80px;
+    /* Inherits padding, border, font-size, etc. from regular select styling above */
+}
+
+select[multiple] option {
+    padding: 8px 12px;
+    margin: 0;
+    background: white;
+    color: var(--text-dark);
+}
+
+select[multiple] option:checked {
+    background: var(--secondary-green);
+    color: white;
+}
+
 .persona-description {
     font-size: 0.85rem;
     color: var(--dark-gray);
@@ -318,7 +399,7 @@ select option {
 
 /* Checkbox Styles */
 .checkbox-group {
-    margin-top: 10px;
+    margin-top: 0;
 }
 
 .checkbox-label {
@@ -623,6 +704,17 @@ select option {
         font-size: 0.85rem;
     }
     
+    .action-buttons {
+        gap: 10px;
+    }
+    
+    .action-btn {
+        font-size: 0.85rem;
+        padding: 10px 16px;
+        min-width: 120px;
+        max-width: none;
+    }
+    
     /* Ensure form elements don't overflow */
     input, select, textarea {
         max-width: 100%;
@@ -643,6 +735,20 @@ select option {
     
     .custom-persona-inputs {
         gap: 12px;
+    }
+    
+    .advanced-options {
+        padding: 15px;
+        margin-top: 15px;
+    }
+    
+    .advanced-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    select[multiple] {
+        min-height: 80px;
     }
 }
 

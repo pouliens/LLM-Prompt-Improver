@@ -25,6 +25,18 @@ class PromptGenerator {
         this.predefinedSection = document.getElementById('predefinedPersonaSection');
         this.customSection = document.getElementById('customPersonaSection');
         this.customDescription = document.getElementById('customPersonaDescription');
+        
+        // Advanced options elements
+        this.advancedToggle = document.getElementById('advancedToggle');
+        this.advancedOptions = document.getElementById('advancedOptions');
+        this.datastreams = document.getElementById('datastreams');
+        this.timeInterval = document.getElementById('timeInterval');
+        this.numReadings = document.getElementById('numReadings');
+        this.startDate = document.getElementById('startDate');
+        
+        // Action buttons
+        this.loadRandomBtn = document.getElementById('loadRandomBtn');
+        this.resetFormBtn = document.getElementById('resetFormBtn');
     }
 
     setupEventListeners() {
@@ -37,11 +49,16 @@ class PromptGenerator {
             radio.addEventListener('change', () => this.togglePersonaSection());
         });
 
+        // Advanced options toggle
+        this.advancedToggle.addEventListener('change', () => this.toggleAdvancedOptions());
+
         // Persona description display
         this.personaSelect.addEventListener('change', () => this.updatePersonaDescription());
 
         // Button listeners
         this.copyBtn.addEventListener('click', () => this.copyToClipboard());
+        this.loadRandomBtn.addEventListener('click', () => this.loadRandomExample());
+        this.resetFormBtn.addEventListener('click', () => this.resetForm());
 
         // Example buttons
         document.querySelectorAll('.load-example-btn').forEach(btn => {
@@ -89,6 +106,21 @@ class PromptGenerator {
             // Reset predefined selection
             this.personaSelect.value = '';
             this.personaDescription.classList.remove('show');
+        }
+        
+        this.updatePreview();
+    }
+
+    toggleAdvancedOptions() {
+        if (this.advancedToggle.checked) {
+            this.advancedOptions.classList.add('show');
+        } else {
+            this.advancedOptions.classList.remove('show');
+            // Reset advanced fields
+            Array.from(this.datastreams.options).forEach(option => option.selected = false);
+            this.timeInterval.value = '';
+            this.numReadings.value = '';
+            this.startDate.value = '';
         }
         
         this.updatePreview();
@@ -146,6 +178,14 @@ class PromptGenerator {
             prompt += `\n\nPlease ${formatInstructions.join(' and ')}.`;
         }
 
+        // Add advanced options if enabled
+        if (this.advancedToggle.checked) {
+            const advancedParams = this.getAdvancedParameters();
+            if (advancedParams) {
+                prompt += `\n\nData Parameters: ${advancedParams}`;
+            }
+        }
+
         // Add persona-specific instructions
         const personaInstructions = this.getPersonaInstructions(persona);
         if (personaInstructions) {
@@ -153,6 +193,33 @@ class PromptGenerator {
         }
 
         return prompt;
+    }
+
+    getAdvancedParameters() {
+        const params = [];
+        
+        // Get selected datastreams
+        const selectedDatastreams = Array.from(this.datastreams.selectedOptions).map(option => option.text);
+        if (selectedDatastreams.length > 0) {
+            params.push(`Focus on datastreams: ${selectedDatastreams.join(', ')}`);
+        }
+        
+        // Get time interval
+        if (this.timeInterval.value) {
+            params.push(`Time interval: ${this.timeInterval.value} minutes`);
+        }
+        
+        // Get number of readings
+        if (this.numReadings.value) {
+            params.push(`Limit to ${this.numReadings.value} readings`);
+        }
+        
+        // Get start date
+        if (this.startDate.value) {
+            params.push(`Starting from: ${this.startDate.value}`);
+        }
+        
+        return params.join('. ');
     }
 
     getPersonaInstructions(persona) {
@@ -261,6 +328,48 @@ class PromptGenerator {
         } catch (error) {
             console.error('Error loading example:', error);
             this.showToast('Error loading example', 'error');
+        }
+    }
+
+    loadRandomExample() {
+        const exampleKeys = Object.keys(this.examples);
+        const randomKey = exampleKeys[Math.floor(Math.random() * exampleKeys.length)];
+        this.loadExample(randomKey);
+        
+        this.showToast(`Random example loaded: ${randomKey.charAt(0).toUpperCase() + randomKey.slice(1)}!`, 'success');
+    }
+
+    resetForm() {
+        try {
+            // Reset to predefined persona mode
+            const predefinedRadio = document.querySelector('input[name="personaType"][value="predefined"]');
+            if (predefinedRadio) {
+                predefinedRadio.checked = true;
+                this.togglePersonaSection();
+            }
+
+            // Reset all form fields
+            if (this.personaSelect) this.personaSelect.value = '';
+            if (this.customDescription) this.customDescription.value = '';
+            if (this.taskTextarea) this.taskTextarea.value = '';
+            if (this.contextTextarea) this.contextTextarea.value = 'BGS sensor data via OGC SensorThings API (sensors.bgs.ac.uk/FROST-Server). Available entities: Observations, Datastreams, Sensors, Things, Locations. Real-time environmental monitoring data.';
+            if (this.formatSelect) this.formatSelect.value = '';
+            if (this.artifactCheckbox) this.artifactCheckbox.checked = false;
+            
+            // Reset advanced options
+            if (this.advancedToggle) {
+                this.advancedToggle.checked = false;
+                this.toggleAdvancedOptions();
+            }
+
+            // Update UI
+            this.updatePersonaDescription();
+            this.updatePreview();
+            
+            this.showToast('Form reset successfully!', 'success');
+        } catch (error) {
+            console.error('Error resetting form:', error);
+            this.showToast('Error resetting form', 'error');
         }
     }
 
