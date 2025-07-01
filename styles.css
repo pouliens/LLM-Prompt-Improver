@@ -930,6 +930,19 @@ select option {
     box-shadow: 0 5px 20px var(--shadow);
 }
 
+.footer a {
+    color: var(--secondary-green);
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border-bottom: 1px solid transparent;
+}
+
+.footer a:hover {
+    color: var(--primary-green);
+    border-bottom-color: var(--primary-green);
+}
+
 /* Toast Notification */
 .toast {
     position: fixed;
