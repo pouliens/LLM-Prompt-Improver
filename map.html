@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BGS Sensor Locations Map</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+    <style>
+        :root {
+            --primary-green: #2d5a27;
+            --secondary-green: #4a7c59;
+            --accent-green: #7fb069;
+            --light-green: #a7c957;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+        }
+
+        .map-container {
+            position: relative;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+
+        .map-title {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .map-title h1 {
+            margin: 0 0 5px 0;
+            font-size: 20px;
+            color: #2c3e50;
+        }
+
+        .map-title p {
+            margin: 0;
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+
+        .legend {
+            position: absolute;
+            bottom: 30px;
+            right: 10px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            min-width: 200px;
+        }
+
+        .legend h3 {
+            margin: 0 0 10px 0;
+            font-size: 16px;
+            color: #2c3e50;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 8px 0;
+            font-size: 12px;
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            margin-right: 8px;
+            border: 2px solid #fff;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .popup-content {
+            max-width: 300px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .popup-content h4 {
+            margin: 0 0 8px 0;
+            color: #2c3e50;
+            font-size: 14px;
+        }
+
+        .popup-content p {
+            margin: 4px 0;
+            font-size: 12px;
+            color: #555;
+        }
+
+        .popup-content .coordinates {
+            font-family: monospace;
+            background: #f8f9fa;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-size: 11px;
+        }
+
+        .sensor-count {
+            background: #3498db;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .leaflet-popup-content-wrapper {
+            border-radius: 8px;
+        }
+
+        .nav-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1001;
+            background: var(--secondary-green);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            min-width: 140px;
+            height: 44px;
+            justify-content: center;
+            text-decoration: none;
+            font-family: inherit;
+        }
+
+        .nav-button:hover {
+            background: var(--primary-green);
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px var(--shadow);
+        }
+
+        .nav-button:active {
+            transform: translateY(0);
+        }
+
+        .stats {
+            position: absolute;
+            top: 70px;
+            right: 10px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 10px 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            font-size: 12px;
+            color: #2c3e50;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="map-container">
+        <div class="map-title">
+            <h1>BGS Sensor Network</h1>
+            <p>British Geological Survey Sensor Locations</p>
+        </div>
+
+        <button class="nav-button" onclick="window.location.href='index.html'">
+            ← Back to Prompt Generator
+        </button>
+
+        <div class="stats">
+            <div><strong>Total Locations:</strong> <span id="total-count">0</span></div>
+            <div><strong>Active Sensors:</strong> <span id="sensor-count">0</span></div>
+        </div>
+
+        <div id="map"></div>
+
+        <div class="legend">
+            <h3>Sensor Types</h3>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #2ecc71;"></div>
+                <span>Groundwater Monitoring</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #3498db;"></div>
+                <span>Weather & Atmospheric</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #e74c3c;"></div>
+                <span>Gas Monitoring</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #f39c12;"></div>
+                <span>Temperature Monitoring</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #9b59b6;"></div>
+                <span>Geophysical/ERT</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #1abc9c;"></div>
+                <span>Pressure/Sampling</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #34495e;"></div>
+                <span>Other/Unknown</span>
+            </div>
+            <div id="measurement-legend"></div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize the map
+        const map = L.map('map').setView([54.5, -2.5], 6);
+
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Sensor location data with detailed datastream information
+        const sensorLocations = [
+            // Glasgow UKGEOS Sites
+            {
+                name: "BGS Groundwater Logger GGA01",
+                lat: 55.839415,
+                lng: -4.200163,
+                type: "Groundwater Monitoring",
+                site: "UKGEOS Glasgow",
+                datastreams: ["Water Temperature (°C)", "Salinity (PSU)", "Conductivity (µS/cm)", "TDS (mg/L)", "Water Level maOD (m)", "Water Level mbd (m)", "Event Log"]
+            },
+            {
+                name: "BGS Groundwater Logger GGA03r",
+                lat: 55.839251,
+                lng: -4.200314,
+                type: "Groundwater Monitoring",
+                site: "UKGEOS Glasgow",
+                datastreams: ["Water Temperature (°C)", "Salinity (PSU)", "Conductivity (µS/cm)", "TDS (mg/L)", "Water Level maOD (m)", "Water Level mbd (m)", "Event Log"]
+            },
+            {
+                name: "BGS Groundwater Logger GGA04",
+                lat: 55.837715,
+                lng: -4.199764,
+                type: "Groundwater Monitoring",
+                site: "UKGEOS Glasgow",
+                datastreams: ["Water Temperature (°C)", "Salinity (PSU)", "Conductivity (µS/cm)", "TDS (mg/L)", "Water Level maOD (m)", "Water Level mbd (m)", "Event Log"]
+            },
+            {
+                name: "BGS Groundwater Logger GGA05",
+                lat: 55.83769,
+                lng: -4.199619,
+                type: "Groundwater Monitoring",
+                site: "UKGEOS Glasgow",
+                datastreams: ["Water Temperature (°C)", "Salinity (PSU)", "Conductivity (µS/cm)", "TDS (mg/L)", "Water Level maOD (m)", "Water Level mbd (m)", "Event Log"]
+            },
+            {
+                name: "BGS Groundwater Logger GGA06r",
+                lat: 55.837657,
+                lng: -4.199457,
+                type: "Groundwater Monitoring",
+                site: "UKGEOS Glasgow",
+                datastreams: ["Water Temperature (°C)", "Salinity (PSU)", "Conductivity (µS/cm)", "TDS (mg/L)", "Water Level maOD (m)", "Water Level mbd (m)", "Event Log"]
+            },
+            {
+                name: "BGS Groundwater Logger GGA07",
+                lat: 55.838337,
+                lng: -4.201172,
+                type: "Groundwater Monitoring",
+                site: "UKGEOS Glasgow",
+                datastreams: ["Water Temperature (°C)", "Salinity (PSU)", "Conductivity (µS/cm)", "TDS (mg/L)", "Water Level maOD (m)", "Water Level mbd (m)", "Event Log"]
+            },
+            {
+                name: "BGS Groundwater Logger GGA08",
+                lat: 55.838255,
+                lng: -4.201232,
+                type: "Groundwater Monitoring",
+                site: "UKGEOS Glasgow",
+                datastreams: ["Water Temperature (°C)", "Salinity (PSU)", "Conductivity (µS/cm)", "TDS (mg/L)", "Water Level maOD (m)", "Water Level mbd (m)", "Event Log"]
+            },
+            {
+                name: "BGS Groundwater Logger GGA09r",
+                lat: 55.838172,
+                lng: -4.201307,
+                type: "Groundwater Monitoring",
+                site: "UKGEOS Glasgow",
+                datastreams: ["Water Temperature (°C)", "Salinity (PSU)", "Conductivity (µS/cm)", "TDS (mg/L)", "Water Level maOD (m)", "Water Level mbd (m)", "Event Log"]
+            },
+            {
+                name: "BGS Groundwater Logger GGB04",
+                lat: 55.836031,
+                lng: -4.199429,
+                type: "Groundwater Monitoring",
+                site: "UKGEOS Glasgow",
+                datastreams: ["Water Temperature (°C)", "Salinity (PSU)", "Conductivity (µS/cm)", "TDS (mg/L)", "Water Level maOD (m)", "Water Level mbd (m)", "Event Log"]
+            },
+            {
+                name: "BGS Groundwater Logger GGB05",
+                lat: 55.836121,
+                lng: -4.199434,
+                type: "Groundwater Monitoring",
+                site: "UKGEOS Glasgow",
+                datastreams: ["Water Temperature (°C)", "Salinity (PSU)", "Conductivity (µS/cm)", "TDS (mg/L)", "Water Level maOD (m)", "Water Level mbd (m)", "Event Log"]
+            },
+
+            // Weather and atmospheric
+            {
+                name: "BGS GGERFS Barometer",
+                lat: 55.838255,
+                lng: -4.2012,
+                type: "Weather & Atmospheric",
+                site: "UKGEOS Glasgow",
+                datastreams: ["Barometric Pressure (mbar)", "Air Temperature (°C)", "Event Log"]
+            },
+            {
+                name: "BGS GGERFS Weather Station",
+                lat: 55.839306,
+                lng: -4.200253,
+                type: "Weather & Atmospheric",
+                site: "UKGEOS Glasgow",
+                datastreams: ["Average Air Temperature (°C)", "Wind Direction (deg)", "Average Wind Speed", "Max Relative Humidity (%)", "Barometric Pressure (mbar)", "Event Log"]
+            },
+
+            // Gas monitoring
+            {
+                name: "BGS Site 1 GasClam",
+                lat: 55.839446,
+                lng: -4.200248,
+                type: "Gas Monitoring",
+                site: "UKGEOS Glasgow",
+                datastreams: ["Carbon Dioxide (%)", "Methane (%)", "Oxygen (%)", "Temperature (°C)", "Barometric Pressure (mbar)", "Event Log"]
+            },
+            {
+                name: "BGS Site 5 GasClam",
+                lat: 55.835948,
+                lng: -4.199518,
+                type: "Gas Monitoring",
+                site: "UKGEOS Glasgow",
+                datastreams: ["Carbon Dioxide (%)", "Methane (%)", "Oxygen (%)", "Temperature (°C)", "Barometric Pressure (mbar)", "Event Log"]
+            },
+
+            // ERT monitoring
+            {
+                name: "Glasgow PRIME Site 1",
+                lat: 55.839415,
+                lng: -4.200163,
+                type: "Geophysical/ERT",
+                site: "UKGEOS Glasgow",
+                datastreams: ["Event Log"]
+            },
+            {
+                name: "Glasgow PRIME Site 2",
+                lat: 55.837715,
+                lng: -4.199764,
+                type: "Geophysical/ERT",
+                site: "UKGEOS Glasgow",
+                datastreams: ["Event Log"]
+            },
+            {
+                name: "Glasgow PRIME Site 3",
+                lat: 55.838337,
+                lng: -4.201172,
+                type: "Geophysical/ERT",
+                site: "UKGEOS Glasgow",
+                datastreams: ["Event Log"]
+            },
+
+            // Downhole loggers
+            {
+                name: "Downhole hydro logger GGA01",
+                lat: 55.839415,
+                lng: -4.200163,
+                type: "Groundwater Monitoring",
+                site: "UKGEOS Glasgow",
+                datastreams: ["Water Temperature (°C)", "Conductivity (µS/cm)", "TDS (ppm)", "Salinity (PSU)", "Water Level maOD (m)", "Water Level mbd (m)", "Event Log"]
+            },
+            {
+                name: "Downhole hydro logger GGA05",
+                lat: 55.83769,
+                lng: -4.199619,
+                type: "Groundwater Monitoring",
+                site: "UKGEOS Glasgow",
+                datastreams: ["Water Temperature (°C)", "Conductivity (µS/cm)", "TDS (ppm)", "Salinity (PSU)", "Water Level maOD (m)", "Water Level mbd (m)", "Event Log"]
+            },
+            {
+                name: "Downhole hydro logger GGA07",
+                lat: 55.838337,
+                lng: -4.201172,
+                type: "Groundwater Monitoring",
+                site: "UKGEOS Glasgow",
+                datastreams: ["Water Temperature (°C)", "Conductivity (µS/cm)", "TDS (ppm)", "Salinity (PSU)", "Water Level maOD (m)", "Water Level mbd (m)", "Event Log"]
+            },
+            {
+                name: "Downhole hydro logger GGA08",
+                lat: 55.838255,
+                lng: -4.201232,
+                type: "Groundwater Monitoring",
+                site: "UKGEOS Glasgow",
+                datastreams: ["Water Temperature (°C)", "Conductivity (µS/cm)", "TDS (ppm)", "Salinity (PSU)", "Water Level maOD (m)", "Water Level mbd (m)", "Event Log"]
+            },
+
+            // Cheshire UKGEOS Sites - Temperature monitoring
+            {
+                name: "DTC Cable in TH0416 Flow",
+                lat: 53.276677,
+                lng: -2.827169,
+                type: "Temperature Monitoring",
+                site: "UKGEOS Cheshire",
+                datastreams: ["Event Log"]
+            },
+            {
+                name: "DTC Cable in TH0416 Return",
+                lat: 53.276677,
+                lng: -2.827169,
+                type: "Temperature Monitoring",
+                site: "UKGEOS Cheshire",
+                datastreams: ["Event Log"]
+            },
+            {
+                name: "DTC Cable in TH0416 Tremie",
+                lat: 53.276677,
+                lng: -2.827169,
+                type: "Temperature Monitoring",
+                site: "UKGEOS Cheshire",
+                datastreams: ["Event Log"]
+            },
+            {
+                name: "DTC Cable in TH0417 Flow",
+                lat: 53.276711,
+                lng: -2.827056,
+                type: "Temperature Monitoring",
+                site: "UKGEOS Cheshire",
+                datastreams: ["Event Log"]
+            },
+            {
+                name: "DTC Cable in TH0417 Return",
+                lat: 53.276711,
+                lng: -2.827056,
+                type: "Temperature Monitoring",
+                site: "UKGEOS Cheshire",
+                datastreams: ["Event Log"]
+            },
+            {
+                name: "DTC Cable in TH0417 Tremie",
+                lat: 53.276711,
+                lng: -2.827056,
+                type: "Temperature Monitoring",
+                site: "UKGEOS Cheshire",
+                datastreams: ["Event Log"]
+            },
+            {
+                name: "DTC Cable in TH0422 Flow",
+                lat: 53.276745,
+                lng: -2.827226,
+                type: "Temperature Monitoring",
+                site: "UKGEOS Cheshire",
+                datastreams: ["Event Log"]
+            },
+            {
+                name: "DTC Cable in TH0422 Return",
+                lat: 53.276745,
+                lng: -2.827226,
+                type: "Temperature Monitoring",
+                site: "UKGEOS Cheshire",
+                datastreams: ["Event Log"]
+            },
+            {
+                name: "DTC Cable in TH0422 Tremie",
+                lat: 53.276745,
+                lng: -2.827226,
+                type: "Temperature Monitoring",
+                site: "UKGEOS Cheshire",
+                datastreams: ["Event Log"]
+            },
+            {
+                name: "DTC Cable in TH0423 Flow",
+                lat: 53.27678,
+                lng: -2.827113,
+                type: "Temperature Monitoring",
+                site: "UKGEOS Cheshire",
+                datastreams: ["Event Log"]
+            },
+            {
+                name: "DTC Cable in TH0423 Return",
+                lat: 53.27678,
+                lng: -2.827113,
+                type: "Temperature Monitoring",
+                site: "UKGEOS Cheshire",
+                datastreams: ["Event Log"]
+            },
+            {
+                name: "DTC Cable in TH0423 Tremie",
+                lat: 53.27678,
+                lng: -2.827113,
+                type: "Temperature Monitoring",
+                site: "UKGEOS Cheshire",
+                datastreams: ["Event Log"]
+            },
+
+            // Cheshire pressure/sampling ports
+            {
+                name: "MLS TH0418 Ports (1-8)",
+                lat: 53.276703,
+                lng: -2.827155,
+                type: "Pressure/Sampling",
+                site: "UKGEOS Cheshire",
+                datastreams: ["Vibrating Wire Pressure", "Water Level mbd (vented)", "Water Level maOD (vented)", "Event Log"]
+            },
+            {
+                name: "MLS TH0419 Ports (1-8)",
+                lat: 53.27672,
+                lng: -2.827099,
+                type: "Pressure/Sampling",
+                site: "UKGEOS Cheshire",
+                datastreams: ["Vibrating Wire Pressure", "Water Level mbd (vented)", "Water Level maOD (vented)", "Event Log"]
+            },
+            {
+                name: "MLS TH0420 Ports (1-8)",
+                lat: 53.276737,
+                lng: -2.827184,
+                type: "Pressure/Sampling",
+                site: "UKGEOS Cheshire",
+                datastreams: ["Vibrating Wire Pressure", "Water Level mbd (vented)", "Water Level maOD (vented)", "Event Log"]
+            },
+            {
+                name: "MLS TH0421 Ports (1-8)",
+                lat: 53.276754,
+                lng: -2.827127,
+                type: "Pressure/Sampling",
+                site: "UKGEOS Cheshire",
+                datastreams: ["Vibrating Wire Pressure", "Water Level mbd (vented)", "Water Level maOD (vented)", "Event Log"]
+            },
+
+            // Cheshire ERT and Barometer
+            {
+                name: "Cheshire PRIME",
+                lat: 53.276818,
+                lng: -2.827519,
+                type: "Geophysical/ERT",
+                site: "UKGEOS Cheshire",
+                datastreams: ["Event Log"]
+            },
+            {
+                name: "UKGEOS Cheshire Geokon Barometer",
+                lat: 53.27673,
+                lng: -2.827187,
+                type: "Weather & Atmospheric",
+                site: "UKGEOS Cheshire",
+                datastreams: ["Barometric Pressure (mbar)", "Air Temperature (°C)", "Event Log"]
+            },
+
+            // Wallingford sites
+            {
+                name: "Wallingford Sensor 01",
+                lat: 51.604918,
+                lng: -1.116293,
+                type: "Other/Unknown",
+                site: "Wallingford",
+                datastreams: ["Water Level (linear)", "Event Log"]
+            },
+            {
+                name: "Wallingford Sensor 02",
+                lat: 51.603226,
+                lng: -1.110896,
+                type: "Other/Unknown",
+                site: "Wallingford",
+                datastreams: ["Water Level (linear)", "Event Log"]
+            },
+            {
+                name: "Thames HR WL Sensor 01",
+                lat: 51.6049180547,
+                lng: -1.11629247665,
+                type: "Other/Unknown",
+                site: "Wallingford",
+                datastreams: ["Water Level (linear)", "Event Log"]
+            }
+        ];
+
+        // Color mapping for sensor types
+        const typeColors = {
+            "Groundwater Monitoring": "#2ecc71",
+            "Weather & Atmospheric": "#3498db",
+            "Gas Monitoring": "#e74c3c",
+            "Temperature Monitoring": "#f39c12",
+            "Geophysical/ERT": "#9b59b6",
+            "Pressure/Sampling": "#1abc9c",
+            "Other/Unknown": "#34495e"
+        };
+
+        // Create marker clusters by unique locations
+        const uniqueLocations = new Map();
+
+        sensorLocations.forEach(location => {
+            const key = `${location.lat.toFixed(6)}_${location.lng.toFixed(6)}`;
+            if (uniqueLocations.has(key)) {
+                const existing = uniqueLocations.get(key);
+                existing.sensors += location.datastreams.length;
+                existing.names.push(location.name);
+                existing.allDatastreams.push(...location.datastreams);
+                if (!existing.types.includes(location.type)) {
+                    existing.types.push(location.type);
+                }
+            } else {
+                uniqueLocations.set(key, {
+                    ...location,
+                    sensors: location.datastreams.length,
+                    names: [location.name],
+                    types: [location.type],
+                    allDatastreams: [...location.datastreams]
+                });
+            }
+        });
+
+        // Add markers to map
+        let totalSensors = 0;
+        let bounds = L.latLngBounds();
+
+        uniqueLocations.forEach(location => {
+            const color = typeColors[location.types[0]] || typeColors["Other/Unknown"];
+            const size = Math.max(8, Math.min(20, 6 + location.sensors));
+
+            const marker = L.circleMarker([location.lat, location.lng], {
+                radius: size,
+                fillColor: color,
+                color: '#fff',
+                weight: 2,
+                opacity: 1,
+                fillOpacity: 0.8
+            });
+
+            // Create popup content with detailed sensor information
+            const sensorList = location.names.map((name, idx) =>
+                `<div style="margin: 8px 0; padding: 6px; background: #f8f9fa; border-radius: 4px; border-left: 3px solid ${color};">
+                    <strong style="font-size: 11px;">${name}</strong>
+                </div>`
+            ).join('');
+
+            // Get unique datastreams (remove duplicates)
+            const uniqueDatastreams = [...new Set(location.allDatastreams)];
+            const datastreamList = uniqueDatastreams.map(ds =>
+                `<li style="font-size: 11px; margin: 2px 0;">${ds}</li>`
+            ).join('');
+
+            const popupContent = `
+                <div class="popup-content">
+                    <h4>${location.site}</h4>
+                    <p><strong>Primary Type:</strong> ${location.types[0]}</p>
+                    ${location.types.length > 1 ? `<p><strong>Additional Types:</strong> ${location.types.slice(1).join(', ')}</p>` : ''}
+                    <p><strong>Location:</strong> <span class="coordinates">${location.lat.toFixed(6)}, ${location.lng.toFixed(6)}</span></p>
+                    
+                    <div style="margin-top: 12px;">
+                        <strong style="font-size: 12px;">Equipment at this location:</strong>
+                        ${sensorList}
+                    </div>
+                    
+                    <div style="margin-top: 12px;">
+                        <strong style="font-size: 12px;">Available Measurements:</strong>
+                        <ul style="margin: 6px 0; padding-left: 16px; max-height: 120px; overflow-y: auto;">
+                            ${datastreamList}
+                        </ul>
+                    </div>
+                    
+                    <p style="margin-top: 8px;"><strong>Total Datastreams:</strong> <span class="sensor-count">${location.sensors}</span></p>
+                </div>
+            `;
+
+            marker.bindPopup(popupContent);
+            marker.addTo(map);
+
+            bounds.extend([location.lat, location.lng]);
+            totalSensors += location.sensors;
+        });
+
+        // Fit map to show all markers
+        if (bounds.isValid()) {
+            map.fitBounds(bounds, { padding: [20, 20] });
+        }
+
+        // Update stats
+        document.getElementById('total-count').textContent = uniqueLocations.size;
+        document.getElementById('sensor-count').textContent = totalSensors;
+
+        // Add click handler for legend interaction
+        document.querySelectorAll('.legend-item').forEach(item => {
+            item.style.cursor = 'pointer';
+            item.addEventListener('click', function () {
+                const type = this.textContent.trim();
+
+                // Find locations of this type and zoom to them
+                const typeLocations = Array.from(uniqueLocations.values())
+                    .filter(loc => loc.types.includes(type));
+
+                if (typeLocations.length > 0) {
+                    const typeBounds = L.latLngBounds();
+                    typeLocations.forEach(loc => {
+                        typeBounds.extend([loc.lat, loc.lng]);
+                    });
+                    map.fitBounds(typeBounds, { padding: [50, 50] });
+                }
+            });
+        });
+
+        // Add scale control
+        L.control.scale().addTo(map);
+
+        // Dynamically add Available Measurements legend
+        const allDatastreams = sensorLocations.flatMap(loc => loc.datastreams);
+        const uniqueDatastreams = [...new Set(allDatastreams)].sort();
+
+        const measurementLegend = document.getElementById('measurement-legend');
+        measurementLegend.innerHTML = `
+            <h3 style="margin-top:18px;">Available Measurements</h3>
+            ${uniqueDatastreams.map(ds => `
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #222;"></div>
+                    <span>${ds}</span>
+                </div>
+            `).join('')}
+        `;
+    </script>
+</body>
+
+</html>

@@ -11,13 +11,14 @@
 <body>
     <div class="container">
         <header class="header">
-            <h1>AI Prompt Generator</h1>
+            <h1>AI Prompt Generator for BGS Sensor API</h1>
+            <p class="header-description">Create optimised prompts for analysing BGS environmental sensor data with AI assistants. <br>This is an alpha version - please share your feedback and suggestions: <a href="mailto:ux@bgs.ac.uk" class="feedback-link">ux@bgs.ac.uk</a></p>
         </header>
 
         <section class="explanation-section">
-            <p class="explanation-text">
+            <!-- <p class="explanation-text">
                 Better prompts lead to better results. Create effective prompts by defining the persona, task, context, and format.
-            </p>
+            </p> -->
             <div class="action-buttons">
                 <button id="loadRandomBtn" class="action-btn">
                     <i class="fas fa-random"></i> Sample Prompt
@@ -147,16 +148,173 @@
                                     <i class="fas fa-info-circle"></i>
                                 </span>
                             </label>
-                            <select id="datastreams" name="datastreams" multiple>
-                                <option value="seismic">Seismic Activity</option>
-                                <option value="groundwater">Groundwater Levels</option>
-                                <option value="temperature">Soil Temperature</option>
-                                <option value="precipitation">Precipitation</option>
-                                <option value="air_quality">Air Quality</option>
-                                <option value="wind">Wind Speed/Direction</option>
-                                <option value="pressure">Atmospheric Pressure</option>
-                                <option value="humidity">Humidity</option>
-                            </select>
+                            <div id="datastreams-container" class="datastreams-container">
+                                <div class="datastreams-selected" id="datastreams-selected">
+                                    <span class="selected-placeholder">Click options below to select datastreams...</span>
+                                </div>
+                                <div class="datastreams-options" id="datastreams-options">
+                                    <label class="datastream-option">
+                                        <input type="checkbox" value="water_temperature" name="datastreams">
+                                        <span class="checkmark"></span>
+                                        <span class="option-text">Water Temperature</span>
+                                    </label>
+                                    <label class="datastream-option">
+                                        <input type="checkbox" value="salinity" name="datastreams">
+                                        <span class="checkmark"></span>
+                                        <span class="option-text">Salinity</span>
+                                    </label>
+                                    <label class="datastream-option">
+                                        <input type="checkbox" value="conductivity" name="datastreams">
+                                        <span class="checkmark"></span>
+                                        <span class="option-text">Conductivity</span>
+                                    </label>
+                                    <label class="datastream-option">
+                                        <input type="checkbox" value="tds" name="datastreams">
+                                        <span class="checkmark"></span>
+                                        <span class="option-text">Total Dissolved Solids (TDS)</span>
+                                    </label>
+                                    <label class="datastream-option">
+                                        <input type="checkbox" value="oxygen" name="datastreams">
+                                        <span class="checkmark"></span>
+                                        <span class="option-text">Dissolved Oxygen</span>
+                                    </label>
+                                    <label class="datastream-option">
+                                        <input type="checkbox" value="air_temperature" name="datastreams">
+                                        <span class="checkmark"></span>
+                                        <span class="option-text">Air Temperature</span>
+                                    </label>
+                                    <label class="datastream-option">
+                                        <input type="checkbox" value="avg_air_temperature" name="datastreams">
+                                        <span class="checkmark"></span>
+                                        <span class="option-text">Average Air Temperature</span>
+                                    </label>
+                                    <label class="datastream-option">
+                                        <input type="checkbox" value="barometric_pressure" name="datastreams">
+                                        <span class="checkmark"></span>
+                                        <span class="option-text">Barometric Pressure</span>
+                                    </label>
+                                    <label class="datastream-option">
+                                        <input type="checkbox" value="wind_direction" name="datastreams">
+                                        <span class="checkmark"></span>
+                                        <span class="option-text">Wind Direction</span>
+                                    </label>
+                                    <label class="datastream-option">
+                                        <input type="checkbox" value="wind_speed" name="datastreams">
+                                        <span class="checkmark"></span>
+                                        <span class="option-text">Average Wind Speed</span>
+                                    </label>
+                                    <label class="datastream-option">
+                                        <input type="checkbox" value="humidity" name="datastreams">
+                                        <span class="checkmark"></span>
+                                        <span class="option-text">Maximum Relative Humidity</span>
+                                    </label>
+                                    <label class="datastream-option">
+                                        <input type="checkbox" value="water_level_mbd" name="datastreams">
+                                        <span class="checkmark"></span>
+                                        <span class="option-text">Water Level (meters below datum)</span>
+                                    </label>
+                                    <label class="datastream-option">
+                                        <input type="checkbox" value="water_level_maod" name="datastreams">
+                                        <span class="checkmark"></span>
+                                        <span class="option-text">Water Level (meters above OD)</span>
+                                    </label>
+                                    <label class="datastream-option">
+                                        <input type="checkbox" value="water_level_maod_linear" name="datastreams">
+                                        <span class="checkmark"></span>
+                                        <span class="option-text">Water Level (linear above OD)</span>
+                                    </label>
+                                    <label class="datastream-option">
+                                        <input type="checkbox" value="water_level" name="datastreams">
+                                        <span class="checkmark"></span>
+                                        <span class="option-text">Water Level (general)</span>
+                                    </label>
+                                    <label class="datastream-option">
+                                        <input type="checkbox" value="vibrating_wire_pressure" name="datastreams">
+                                        <span class="checkmark"></span>
+                                        <span class="option-text">Vibrating Wire Pressure</span>
+                                    </label>
+                                    <label class="datastream-option">
+                                        <input type="checkbox" value="methane" name="datastreams">
+                                        <span class="checkmark"></span>
+                                        <span class="option-text">Methane</span>
+                                    </label>
+                                    <label class="datastream-option">
+                                        <input type="checkbox" value="carbon_dioxide" name="datastreams">
+                                        <span class="checkmark"></span>
+                                        <span class="option-text">Carbon Dioxide</span>
+                                    </label>
+                                    <label class="datastream-option">
+                                        <input type="checkbox" value="methane_path1" name="datastreams">
+                                        <span class="checkmark"></span>
+                                        <span class="option-text">Methane - Path 1</span>
+                                    </label>
+                                    <label class="datastream-option">
+                                        <input type="checkbox" value="methane_path2" name="datastreams">
+                                        <span class="checkmark"></span>
+                                        <span class="option-text">Methane - Path 2</span>
+                                    </label>
+                                    <label class="datastream-option">
+                                        <input type="checkbox" value="methane_path3" name="datastreams">
+                                        <span class="checkmark"></span>
+                                        <span class="option-text">Methane - Path 3</span>
+                                    </label>
+                                    <label class="datastream-option">
+                                        <input type="checkbox" value="co2_path1" name="datastreams">
+                                        <span class="checkmark"></span>
+                                        <span class="option-text">Carbon Dioxide - Path 1</span>
+                                    </label>
+                                    <label class="datastream-option">
+                                        <input type="checkbox" value="co2_path2" name="datastreams">
+                                        <span class="checkmark"></span>
+                                        <span class="option-text">Carbon Dioxide - Path 2</span>
+                                    </label>
+                                    <label class="datastream-option">
+                                        <input type="checkbox" value="co2_path3" name="datastreams">
+                                        <span class="checkmark"></span>
+                                        <span class="option-text">Carbon Dioxide - Path 3</span>
+                                    </label>
+                                    <label class="datastream-option">
+                                        <input type="checkbox" value="temperature" name="datastreams">
+                                        <span class="checkmark"></span>
+                                        <span class="option-text">Temperature (general)</span>
+                                    </label>
+                                    <label class="datastream-option">
+                                        <input type="checkbox" value="dts_temperature" name="datastreams">
+                                        <span class="checkmark"></span>
+                                        <span class="option-text">DTS Temperature</span>
+                                    </label>
+                                    <label class="datastream-option">
+                                        <input type="checkbox" value="dtc_temperature" name="datastreams">
+                                        <span class="checkmark"></span>
+                                        <span class="option-text">DTC Temperature</span>
+                                    </label>
+                                    <label class="datastream-option">
+                                        <input type="checkbox" value="dts_length" name="datastreams">
+                                        <span class="checkmark"></span>
+                                        <span class="option-text">DTS Length Along Fibre</span>
+                                    </label>
+                                    <label class="datastream-option">
+                                        <input type="checkbox" value="dts_depth" name="datastreams">
+                                        <span class="checkmark"></span>
+                                        <span class="option-text">DTS Depth</span>
+                                    </label>
+                                    <label class="datastream-option">
+                                        <input type="checkbox" value="dtc_depth" name="datastreams">
+                                        <span class="checkmark"></span>
+                                        <span class="option-text">DTC Depth</span>
+                                    </label>
+                                    <label class="datastream-option">
+                                        <input type="checkbox" value="dtc_node_id" name="datastreams">
+                                        <span class="checkmark"></span>
+                                        <span class="option-text">DTC Node ID</span>
+                                    </label>
+                                    <label class="datastream-option">
+                                        <input type="checkbox" value="event" name="datastreams">
+                                        <span class="checkmark"></span>
+                                        <span class="option-text">Event Logging</span>
+                                    </label>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="advanced-grid">
@@ -188,6 +346,16 @@
                                     </span>
                                 </label>
                                 <input type="date" id="startDate" name="startDate">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="endDate">
+                                    <i class="fas fa-calendar-alt"></i> End Date
+                                    <span class="tooltip" data-tooltip="Ending date for data retrieval">
+                                        <i class="fas fa-info-circle"></i>
+                                    </span>
+                                </label>
+                                <input type="date" id="endDate" name="endDate">
                             </div>
                         </div>
                     </div>
@@ -237,6 +405,11 @@
             <h3><i class="fas fa-tips"></i> Tips for Better Prompts</h3>
             <div class="tips-grid">
                 <div class="tip-card">
+                    <i class="fas fa-robot"></i>
+                    <h4>Choose AI Persona</h4>
+                    <p>Select the AI persona type that matches your analysis needs: analytical, summarizing, interpreting, or monitoring.</p>
+                </div>
+                <div class="tip-card">
                     <i class="fas fa-bullseye"></i>
                     <h4>Be Specific</h4>
                     <p>Include details about your data type, size, time period, and geographic scope.</p>
@@ -245,16 +418,6 @@
                     <i class="fas fa-chart-line"></i>
                     <h4>Define Goals</h4>
                     <p>Clearly state what insights, patterns, or outcomes you're looking for.</p>
-                </div>
-                <div class="tip-card">
-                    <i class="fas fa-info-circle"></i>
-                    <h4>Provide Good Context</h4>
-                    <p>Include sensor details, measurement units, data quality flags, and any known limitations or calibration info.</p>
-                </div>
-                <div class="tip-card">
-                    <i class="fas fa-robot"></i>
-                    <h4>Choose AI Persona</h4>
-                    <p>Select the AI persona type that matches your analysis needs: analytical, summarizing, interpreting, or monitoring.</p>
                 </div>
             </div>
         </section>
@@ -298,7 +461,7 @@
                     </div>
                 </div>
 
-                <div class="sample-category">
+                <!-- <div class="sample-category">
                     <h4>By Hardware Type</h4>
                     <div class="sample-queries">
                         <div class="sample-query">
@@ -314,7 +477,7 @@
                             <button class="copy-query-btn" data-query="Show DTS system data"><i class="fas fa-copy"></i></button>
                         </div>
                     </div>
-                </div>
+                </div> -->
 
                 <div class="sample-category">
                     <h4>By Time Period</h4>
@@ -349,6 +512,45 @@
                             <span class="query-text">"Show water level trends from mine water monitoring sites"</span>
                             <button class="copy-query-btn" data-query="Show water level trends from mine water monitoring sites"><i class="fas fa-copy"></i></button>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="useful-links-section">
+            <h3><i class="fas fa-external-link-alt"></i> Useful Links</h3>
+            <div class="links-grid">
+                <div class="link-card">
+                    <div class="link-content">
+                        <h4>BGS Sensor Data MCP Server</h4>
+                        <p>Direct access to BGS sensor data through Model Context Protocol (MCP) for AI integration and real-time data queries</p>
+                        <div class="coming-soon-badge">
+                            <i class="fas fa-clock"></i> Coming Soon
+                        </div>
+                    </div>
+                </div>
+                <div class="link-card">
+                    <!-- <div class="link-icon">
+                        <i class="fas fa-map-marked-alt"></i>
+                    </div> -->
+                    <div class="link-content">
+                        <h4>BGS Sensor Map</h4>
+                        <p>Interactive map showing all BGS sensor locations across the UK</p>
+                        <a href="map.html" class="link-btn">
+                            <i class="fas fa-map"></i> View Map
+                        </a>
+                    </div>
+                </div>
+                <div class="link-card">
+                    <!-- <div class="link-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div> -->
+                    <div class="link-content">
+                        <h4>BGS Sensor Dashboard</h4>
+                        <p>Real-time data explorer and visualization dashboard for BGS sensors</p>
+                        <a href="https://pautva-bgs-sensor-data-explorer.streamlit.app/" target="_blank" class="link-btn">
+                            <i class="fas fa-external-link-alt"></i> Open Dashboard
+                        </a>
                     </div>
                 </div>
             </div>

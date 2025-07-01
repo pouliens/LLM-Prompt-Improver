@@ -29,10 +29,13 @@ class PromptGenerator {
         // Advanced options elements
         this.advancedToggle = document.getElementById('advancedToggle');
         this.advancedOptions = document.getElementById('advancedOptions');
-        this.datastreams = document.getElementById('datastreams');
+        this.datastreamsContainer = document.getElementById('datastreams-container');
+        this.datastreamsSelected = document.getElementById('datastreams-selected');
+        this.datastreamsOptions = document.getElementById('datastreams-options');
         this.timeInterval = document.getElementById('timeInterval');
         this.numReadings = document.getElementById('numReadings');
         this.startDate = document.getElementById('startDate');
+        this.endDate = document.getElementById('endDate');
         
         // Action buttons
         this.loadRandomBtn = document.getElementById('loadRandomBtn');
@@ -69,6 +72,56 @@ class PromptGenerator {
         document.querySelectorAll('.copy-query-btn').forEach(btn => {
             btn.addEventListener('click', (e) => this.copyQuery(e.target.dataset.query));
         });
+
+        // Datastreams checkbox listeners
+        this.setupDatastreamsListeners();
+        this.updateDatastreamsDisplay();
+    }
+
+    setupDatastreamsListeners() {
+        // Listen for checkbox changes
+        this.datastreamsOptions.addEventListener('change', (e) => {
+            if (e.target.type === 'checkbox' && e.target.name === 'datastreams') {
+                this.updateDatastreamsDisplay();
+                this.updatePreview();
+            }
+        });
+
+        // Listen for remove button clicks in selected tags
+        this.datastreamsSelected.addEventListener('click', (e) => {
+            if (e.target.classList.contains('remove')) {
+                const value = e.target.dataset.value;
+                const checkbox = this.datastreamsOptions.querySelector(`input[value="${value}"]`);
+                if (checkbox) {
+                    checkbox.checked = false;
+                    this.updateDatastreamsDisplay();
+                    this.updatePreview();
+                }
+            }
+        });
+    }
+
+    updateDatastreamsDisplay() {
+        const checkedBoxes = this.datastreamsOptions.querySelectorAll('input[type="checkbox"]:checked');
+        this.datastreamsSelected.innerHTML = '';
+
+        if (checkedBoxes.length === 0) {
+            const placeholder = document.createElement('span');
+            placeholder.className = 'selected-placeholder';
+            placeholder.textContent = 'Click options below to select datastreams...';
+            this.datastreamsSelected.appendChild(placeholder);
+        } else {
+            checkedBoxes.forEach(checkbox => {
+                const label = checkbox.parentElement.querySelector('.option-text').textContent;
+                const tag = document.createElement('span');
+                tag.className = 'selected-tag';
+                tag.innerHTML = `
+                    <span>${label}</span>
+                    <span class="remove" data-value="${checkbox.value}">×</span>
+                `;
+                this.datastreamsSelected.appendChild(tag);
+            });
+        }
     }
 
     setupExamples() {
@@ -122,10 +175,12 @@ class PromptGenerator {
         } else {
             this.advancedOptions.classList.remove('show');
             // Reset advanced fields
-            Array.from(this.datastreams.options).forEach(option => option.selected = false);
+            this.datastreamsOptions.querySelectorAll('input[type="checkbox"]').forEach(checkbox => checkbox.checked = false);
+            this.updateDatastreamsDisplay();
             this.timeInterval.value = '';
             this.numReadings.value = '';
             this.startDate.value = '';
+            this.endDate.value = '';
         }
         
         this.updatePreview();
@@ -204,8 +259,11 @@ class PromptGenerator {
         const params = [];
         
         // Get selected datastreams
-        const selectedDatastreams = Array.from(this.datastreams.selectedOptions).map(option => option.text);
-        if (selectedDatastreams.length > 0) {
+        const checkedBoxes = this.datastreamsOptions.querySelectorAll('input[type="checkbox"]:checked');
+        if (checkedBoxes.length > 0) {
+            const selectedDatastreams = Array.from(checkedBoxes).map(checkbox => 
+                checkbox.parentElement.querySelector('.option-text').textContent
+            );
             params.push(`Focus on datastreams: ${selectedDatastreams.join(', ')}`);
         }
         
@@ -222,6 +280,11 @@ class PromptGenerator {
         // Get start date
         if (this.startDate.value) {
             params.push(`Starting from: ${this.startDate.value}`);
+        }
+        
+        // Get end date
+        if (this.endDate.value) {
+            params.push(`Ending at: ${this.endDate.value}`);
         }
         
         return params.join('. ');
@@ -526,219 +589,12 @@ class FormValidator {
     }
 }
 
-// Custom Multi-Select Component
-class CustomMultiSelect {
-    constructor(selectElement) {
-        this.originalSelect = selectElement;
-        this.options = Array.from(selectElement.querySelectorAll('option'));
-        this.selectedValues = [];
-        this.isOpen = false;
-        
-        this.createCustomElement();
-        this.setupEventListeners();
-        this.updateDisplay();
-    }
-    
-    createCustomElement() {
-        // Create wrapper
-        this.wrapper = document.createElement('div');
-        this.wrapper.className = 'custom-multiselect';
-        
-        // Create header
-        this.header = document.createElement('div');
-        this.header.className = 'multiselect-header';
-        this.header.tabIndex = 0;
-        
-        // Create selection display
-        this.selection = document.createElement('div');
-        this.selection.className = 'multiselect-selection';
-        this.header.appendChild(this.selection);
-        
-        // Create dropdown
-        this.dropdown = document.createElement('div');
-        this.dropdown.className = 'multiselect-dropdown';
-        
-        // Create option elements
-        this.options.forEach(option => {
-            const optionElement = document.createElement('div');
-            optionElement.className = 'multiselect-option';
-            optionElement.dataset.value = option.value;
-            
-            const checkbox = document.createElement('div');
-            checkbox.className = 'multiselect-checkbox';
-            
-            const label = document.createElement('span');
-            label.textContent = option.textContent;
-            
-            optionElement.appendChild(checkbox);
-            optionElement.appendChild(label);
-            this.dropdown.appendChild(optionElement);
-        });
-        
-        // Assemble wrapper
-        this.wrapper.appendChild(this.header);
-        this.wrapper.appendChild(this.dropdown);
-        
-        // Replace original select
-        this.originalSelect.parentNode.insertBefore(this.wrapper, this.originalSelect);
-        this.originalSelect.style.display = 'none';
-    }
-    
-    setupEventListeners() {
-        // Header click - toggle dropdown
-        this.header.addEventListener('click', (e) => {
-            e.preventDefault();
-            this.toggleDropdown();
-        });
-        
-        // Header keyboard navigation
-        this.header.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                this.toggleDropdown();
-            }
-        });
-        
-        // Option selection
-        this.dropdown.addEventListener('click', (e) => {
-            const option = e.target.closest('.multiselect-option');
-            if (option) {
-                e.preventDefault();
-                this.toggleOption(option.dataset.value);
-            }
-        });
-        
-        // Close dropdown when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!this.wrapper.contains(e.target)) {
-                this.closeDropdown();
-            }
-        });
-        
-        // Close dropdown on escape
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && this.isOpen) {
-                this.closeDropdown();
-            }
-        });
-    }
-    
-    toggleDropdown() {
-        if (this.isOpen) {
-            this.closeDropdown();
-        } else {
-            this.openDropdown();
-        }
-    }
-    
-    openDropdown() {
-        this.isOpen = true;
-        this.header.classList.add('open');
-        this.dropdown.classList.add('open');
-    }
-    
-    closeDropdown() {
-        this.isOpen = false;
-        this.header.classList.remove('open');
-        this.dropdown.classList.remove('open');
-    }
-    
-    toggleOption(value) {
-        const index = this.selectedValues.indexOf(value);
-        if (index > -1) {
-            this.selectedValues.splice(index, 1);
-        } else {
-            this.selectedValues.push(value);
-        }
-        
-        this.updateDisplay();
-        this.updateOriginalSelect();
-        this.dispatchChangeEvent();
-    }
-    
-    updateDisplay() {
-        // Update selection display
-        this.selection.innerHTML = '';
-        
-        if (this.selectedValues.length === 0) {
-            const placeholder = document.createElement('span');
-            placeholder.className = 'multiselect-placeholder';
-            placeholder.textContent = 'Select datastreams...';
-            this.selection.appendChild(placeholder);
-        } else {
-            this.selectedValues.forEach(value => {
-                const option = this.options.find(opt => opt.value === value);
-                if (option) {
-                    const tag = document.createElement('span');
-                    tag.className = 'multiselect-tag';
-                    tag.innerHTML = `
-                        <span>${option.textContent}</span>
-                        <span class="remove" data-value="${value}">×</span>
-                    `;
-                    
-                    // Add remove functionality
-                    tag.querySelector('.remove').addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        this.toggleOption(value);
-                    });
-                    
-                    this.selection.appendChild(tag);
-                }
-            });
-        }
-        
-        // Update option states
-        this.dropdown.querySelectorAll('.multiselect-option').forEach(optionElement => {
-            const value = optionElement.dataset.value;
-            const checkbox = optionElement.querySelector('.multiselect-checkbox');
-            
-            if (this.selectedValues.includes(value)) {
-                optionElement.classList.add('selected');
-                checkbox.textContent = '✓';
-            } else {
-                optionElement.classList.remove('selected');
-                checkbox.textContent = '';
-            }
-        });
-    }
-    
-    updateOriginalSelect() {
-        // Update original select element
-        Array.from(this.originalSelect.options).forEach(option => {
-            option.selected = this.selectedValues.includes(option.value);
-        });
-    }
-    
-    dispatchChangeEvent() {
-        // Dispatch change event on original select
-        this.originalSelect.dispatchEvent(new Event('change', { bubbles: true }));
-    }
-    
-    reset() {
-        this.selectedValues = [];
-        this.updateDisplay();
-        this.updateOriginalSelect();
-        this.closeDropdown();
-    }
-}
 
 // Initialize the application when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     const generator = new PromptGenerator();
     const validator = new FormValidator(generator);
     
-    // Initialize custom multi-select
-    const datastreamSelect = document.getElementById('datastreams');
-    if (datastreamSelect) {
-        const customMultiSelect = new CustomMultiSelect(datastreamSelect);
-        
-        // Add reset functionality to generator
-        const originalReset = generator.resetForm.bind(generator);
-        generator.resetForm = function() {
-            originalReset();
-            customMultiSelect.reset();
-        };
-    }
     
     // Load from URL parameters if present
     generator.loadFromURL();
