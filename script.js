@@ -64,6 +64,11 @@ class PromptGenerator {
         document.querySelectorAll('.load-example-btn').forEach(btn => {
             btn.addEventListener('click', (e) => this.loadExample(e.target.dataset.example));
         });
+
+        // Copy query buttons
+        document.querySelectorAll('.copy-query-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => this.copyQuery(e.target.dataset.query));
+        });
     }
 
     setupExamples() {
@@ -273,6 +278,28 @@ class PromptGenerator {
                 this.showToast('Prompt copied to clipboard!', 'success');
             } catch (fallbackErr) {
                 this.showToast('Failed to copy prompt', 'error');
+            }
+            document.body.removeChild(textArea);
+        }
+    }
+
+    async copyQuery(query) {
+        if (!query) return;
+
+        try {
+            await navigator.clipboard.writeText(query);
+            this.showToast('Query copied to clipboard!', 'success');
+        } catch (err) {
+            // Fallback for older browsers
+            const textArea = document.createElement('textarea');
+            textArea.value = query;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                this.showToast('Query copied to clipboard!', 'success');
+            } catch (fallbackErr) {
+                this.showToast('Failed to copy query', 'error');
             }
             document.body.removeChild(textArea);
         }

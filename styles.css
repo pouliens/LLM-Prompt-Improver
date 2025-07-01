@@ -653,7 +653,7 @@ select option {
 }
 
 /* Examples Section */
-.examples-section, .tips-section {
+.examples-section, .tips-section, .samples-section {
     background: white;
     padding: 30px;
     border-radius: 15px;
@@ -661,7 +661,7 @@ select option {
     margin-bottom: 30px;
 }
 
-.examples-section h3, .tips-section h3 {
+.examples-section h3, .tips-section h3, .samples-section h3 {
     color: var(--primary-green);
     margin-bottom: 25px;
     font-size: 1.4rem;
@@ -729,6 +729,82 @@ select option {
 .tip-card p {
     color: var(--dark-gray);
     font-size: 0.9rem;
+}
+
+/* Sample Queries Section */
+.samples-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.sample-category {
+    background: var(--light-gray);
+    padding: 20px;
+    border-radius: 10px;
+    border-left: 4px solid var(--accent-green);
+}
+
+.sample-category h4 {
+    color: var(--primary-green);
+    margin-bottom: 15px;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.sample-queries {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.sample-query {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 12px;
+    background: white;
+    border-radius: 6px;
+    border: 1px solid var(--medium-gray);
+    transition: all 0.2s ease;
+}
+
+.sample-query:hover {
+    border-color: var(--accent-green);
+    box-shadow: 0 2px 8px rgba(167, 201, 87, 0.2);
+}
+
+.query-text {
+    flex: 1;
+    font-size: 0.9rem;
+    color: var(--text-dark);
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+.copy-query-btn {
+    background: var(--accent-green);
+    color: white;
+    border: none;
+    padding: 6px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.2s ease;
+    min-width: 32px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.copy-query-btn:hover {
+    background: var(--light-green);
+    transform: translateY(-1px);
+}
+
+.copy-query-btn:active {
+    transform: translateY(0);
 }
 
 /* Footer */
@@ -807,11 +883,11 @@ select option {
         justify-content: flex-end;
     }
     
-    .examples-grid, .tips-grid {
+    .examples-grid, .tips-grid, .samples-grid {
         grid-template-columns: 1fr;
     }
     
-    .form-section, .examples-section, .tips-section {
+    .form-section, .examples-section, .tips-section, .samples-section {
         padding: 20px;
     }
     
