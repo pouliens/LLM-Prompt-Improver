@@ -32,6 +32,9 @@ class PromptGenerator {
         this.datastreamsContainer = document.getElementById('datastreams-container');
         this.datastreamsSelected = document.getElementById('datastreams-selected');
         this.datastreamsOptions = document.getElementById('datastreams-options');
+        this.boreholesContainer = document.getElementById('boreholes-container');
+        this.boreholesSelected = document.getElementById('boreholes-selected');
+        this.boreholesOptions = document.getElementById('boreholes-options');
         this.timeInterval = document.getElementById('timeInterval');
         this.numReadings = document.getElementById('numReadings');
         this.startDate = document.getElementById('startDate');
@@ -76,6 +79,10 @@ class PromptGenerator {
         // Datastreams checkbox listeners
         this.setupDatastreamsListeners();
         this.updateDatastreamsDisplay();
+        
+        // Boreholes checkbox listeners
+        this.setupBoreholesListeners();
+        this.updateBoreholesDisplay();
     }
 
     setupDatastreamsListeners() {
@@ -120,6 +127,52 @@ class PromptGenerator {
                     <span class="remove" data-value="${checkbox.value}">×</span>
                 `;
                 this.datastreamsSelected.appendChild(tag);
+            });
+        }
+    }
+
+    setupBoreholesListeners() {
+        // Listen for checkbox changes
+        this.boreholesOptions.addEventListener('change', (e) => {
+            if (e.target.type === 'checkbox' && e.target.name === 'boreholes') {
+                this.updateBoreholesDisplay();
+                this.updatePreview();
+            }
+        });
+
+        // Listen for remove button clicks in selected tags
+        this.boreholesSelected.addEventListener('click', (e) => {
+            if (e.target.classList.contains('remove')) {
+                const value = e.target.dataset.value;
+                const checkbox = this.boreholesOptions.querySelector(`input[value="${value}"]`);
+                if (checkbox) {
+                    checkbox.checked = false;
+                    this.updateBoreholesDisplay();
+                    this.updatePreview();
+                }
+            }
+        });
+    }
+
+    updateBoreholesDisplay() {
+        const checkedBoxes = this.boreholesOptions.querySelectorAll('input[type="checkbox"]:checked');
+        this.boreholesSelected.innerHTML = '';
+
+        if (checkedBoxes.length === 0) {
+            const placeholder = document.createElement('span');
+            placeholder.className = 'selected-placeholder';
+            placeholder.textContent = 'Click options below to select boreholes...';
+            this.boreholesSelected.appendChild(placeholder);
+        } else {
+            checkedBoxes.forEach(checkbox => {
+                const label = checkbox.parentElement.querySelector('.option-text').textContent;
+                const tag = document.createElement('span');
+                tag.className = 'selected-tag';
+                tag.innerHTML = `
+                    <span>${label}</span>
+                    <span class="remove" data-value="${checkbox.value}">×</span>
+                `;
+                this.boreholesSelected.appendChild(tag);
             });
         }
     }
@@ -177,6 +230,8 @@ class PromptGenerator {
             // Reset advanced fields
             this.datastreamsOptions.querySelectorAll('input[type="checkbox"]').forEach(checkbox => checkbox.checked = false);
             this.updateDatastreamsDisplay();
+            this.boreholesOptions.querySelectorAll('input[type="checkbox"]').forEach(checkbox => checkbox.checked = false);
+            this.updateBoreholesDisplay();
             this.timeInterval.value = '';
             this.numReadings.value = '';
             this.startDate.value = '';
@@ -265,6 +320,15 @@ class PromptGenerator {
                 checkbox.parentElement.querySelector('.option-text').textContent
             );
             params.push(`Focus on datastreams: ${selectedDatastreams.join(', ')}`);
+        }
+        
+        // Get selected boreholes
+        const checkedBoreholes = this.boreholesOptions.querySelectorAll('input[type="checkbox"]:checked');
+        if (checkedBoreholes.length > 0) {
+            const selectedBoreholes = Array.from(checkedBoreholes).map(checkbox => 
+                checkbox.parentElement.querySelector('.option-text').textContent
+            );
+            params.push(`Focus on boreholes: ${selectedBoreholes.join(', ')}`);
         }
         
         // Get time interval

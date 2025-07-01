@@ -240,7 +240,8 @@
 
         // Add OpenStreetMap tiles
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 22
         }).addTo(map);
 
         // Sensor location data with detailed datastream information
