@@ -17,7 +17,6 @@ class PromptGenerator {
         this.artifactCheckbox = document.getElementById('artifact');
         this.previewDiv = document.getElementById('promptPreview');
         this.copyBtn = document.getElementById('copyBtn');
-        this.downloadBtn = document.getElementById('downloadBtn');
         this.personaDescription = document.getElementById('personaDescription');
         this.toast = document.getElementById('toast');
         
@@ -25,8 +24,7 @@ class PromptGenerator {
         this.personaToggle = document.querySelectorAll('input[name="personaType"]');
         this.predefinedSection = document.getElementById('predefinedPersonaSection');
         this.customSection = document.getElementById('customPersonaSection');
-        this.customTitle = document.getElementById('customPersonaTitle');
-        this.customExpertise = document.getElementById('customPersonaExpertise');
+        this.customDescription = document.getElementById('customPersonaDescription');
     }
 
     setupEventListeners() {
@@ -44,7 +42,6 @@ class PromptGenerator {
 
         // Button listeners
         this.copyBtn.addEventListener('click', () => this.copyToClipboard());
-        this.downloadBtn.addEventListener('click', () => this.downloadPrompt());
 
         // Example buttons
         document.querySelectorAll('.load-example-btn').forEach(btn => {
@@ -85,8 +82,7 @@ class PromptGenerator {
             this.predefinedSection.classList.add('active');
             this.customSection.classList.remove('active');
             // Reset custom fields
-            this.customTitle.value = '';
-            this.customExpertise.value = '';
+            this.customDescription.value = '';
         } else {
             this.predefinedSection.classList.remove('active');
             this.customSection.classList.add('active');
@@ -114,23 +110,12 @@ class PromptGenerator {
         if (selectedType === 'predefined') {
             return this.personaSelect.value;
         } else {
-            return this.customTitle.value.trim();
+            return this.customDescription.value.trim();
         }
-    }
-
-    getCurrentPersonaExpertise() {
-        const selectedType = document.querySelector('input[name="personaType"]:checked').value;
-        
-        if (selectedType === 'custom') {
-            return this.customExpertise.value.trim();
-        }
-        
-        return '';
     }
 
     generatePrompt() {
         const persona = this.getCurrentPersona();
-        const personaExpertise = this.getCurrentPersonaExpertise();
         const task = this.taskTextarea.value.trim();
         const context = this.contextTextarea.value.trim();
         const format = this.formatSelect.value;
@@ -140,14 +125,7 @@ class PromptGenerator {
             return '';
         }
 
-        let prompt = `You are a ${persona}`;
-        
-        // Add custom expertise if provided
-        if (personaExpertise) {
-            prompt += ` with the following expertise: ${personaExpertise}`;
-        }
-        
-        prompt += `. ${task}`;
+        let prompt = `You are a ${persona}. ${task}`;
 
         if (context) {
             prompt += `\n\nContext: ${context}`;
@@ -204,11 +182,9 @@ class PromptGenerator {
         if (prompt) {
             this.previewDiv.textContent = prompt;
             this.copyBtn.disabled = false;
-            this.downloadBtn.disabled = false;
         } else {
             this.previewDiv.innerHTML = '<p class="placeholder-text">Fill out the form to see your generated prompt here...</p>';
             this.copyBtn.disabled = true;
-            this.downloadBtn.disabled = true;
         }
     }
 
@@ -235,49 +211,58 @@ class PromptGenerator {
         }
     }
 
-    downloadPrompt() {
-        const prompt = this.generatePrompt();
-        if (!prompt) return;
-
-        const persona = this.personaSelect.value.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
-        const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
-        const filename = `environmental_prompt_${persona}_${timestamp}.txt`;
-
-        const blob = new Blob([prompt], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-        
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-
-        this.showToast('Prompt downloaded!', 'success');
-    }
 
     loadExample(exampleKey) {
         const example = this.examples[exampleKey];
-        if (!example) return;
+        if (!example) {
+            console.error('Example not found:', exampleKey);
+            return;
+        }
 
-        // Set to predefined persona mode
-        document.querySelector('input[name="personaType"][value="predefined"]').checked = true;
-        this.togglePersonaSection();
+        try {
+            // Set to predefined persona mode
+            const predefinedRadio = document.querySelector('input[name="personaType"][value="predefined"]');
+            if (predefinedRadio) {
+                predefinedRadio.checked = true;
+                this.togglePersonaSection();
+            }
 
-        this.personaSelect.value = example.persona;
-        this.taskTextarea.value = example.task;
-        this.contextTextarea.value = example.context;
-        this.formatSelect.value = example.format;
-        this.artifactCheckbox.checked = example.artifact;
+            // Populate form fields and trigger change events
+            if (this.personaSelect) {
+                this.personaSelect.value = example.persona;
+                this.personaSelect.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            if (this.taskTextarea) {
+                this.taskTextarea.value = example.task;
+                this.taskTextarea.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+            if (this.contextTextarea) {
+                this.contextTextarea.value = example.context;
+                this.contextTextarea.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+            if (this.formatSelect) {
+                this.formatSelect.value = example.format;
+                this.formatSelect.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            if (this.artifactCheckbox) {
+                this.artifactCheckbox.checked = example.artifact;
+                this.artifactCheckbox.dispatchEvent(new Event('change', { bubbles: true }));
+            }
 
-        this.updatePersonaDescription();
-        this.updatePreview();
-        
-        // Scroll to form
-        this.form.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        
-        this.showToast(`${exampleKey.charAt(0).toUpperCase() + exampleKey.slice(1)} example loaded!`, 'success');
+            // Update UI
+            this.updatePersonaDescription();
+            this.updatePreview();
+            
+            // Scroll to form
+            if (this.form) {
+                this.form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+            
+            this.showToast(`${exampleKey.charAt(0).toUpperCase() + exampleKey.slice(1)} example loaded!`, 'success');
+        } catch (error) {
+            console.error('Error loading example:', error);
+            this.showToast('Error loading example', 'error');
+        }
     }
 
     showToast(message, type = 'success') {
@@ -290,27 +275,6 @@ class PromptGenerator {
         }, 3000);
     }
 
-    // URL sharing functionality (bonus feature)
-    getShareableURL() {
-        const params = new URLSearchParams();
-        const personaType = document.querySelector('input[name="personaType"]:checked').value;
-        
-        params.set('personaType', personaType);
-        
-        if (personaType === 'predefined' && this.personaSelect.value) {
-            params.set('persona', this.personaSelect.value);
-        } else if (personaType === 'custom') {
-            if (this.customTitle.value) params.set('customTitle', this.customTitle.value);
-            if (this.customExpertise.value) params.set('customExpertise', this.customExpertise.value);
-        }
-        
-        if (this.taskTextarea.value) params.set('task', this.taskTextarea.value);
-        if (this.contextTextarea.value) params.set('context', this.contextTextarea.value);
-        if (this.formatSelect.value) params.set('format', this.formatSelect.value);
-        if (this.artifactCheckbox.checked) params.set('artifact', 'true');
-
-        return `${window.location.origin}${window.location.pathname}?${params.toString()}`;
-    }
 
     loadFromURL() {
         const params = new URLSearchParams(window.location.search);
@@ -324,8 +288,7 @@ class PromptGenerator {
         if (personaType === 'predefined' && params.get('persona')) {
             this.personaSelect.value = params.get('persona');
         } else if (personaType === 'custom') {
-            if (params.get('customTitle')) this.customTitle.value = params.get('customTitle');
-            if (params.get('customExpertise')) this.customExpertise.value = params.get('customExpertise');
+            if (params.get('customDescription')) this.customDescription.value = params.get('customDescription');
         }
         
         if (params.get('task')) this.taskTextarea.value = params.get('task');
@@ -348,7 +311,7 @@ class FormValidator {
     setupValidation() {
         // Real-time validation
         this.generator.personaSelect.addEventListener('change', () => this.validatePersona());
-        this.generator.customTitle.addEventListener('input', () => this.validatePersona());
+        this.generator.customDescription.addEventListener('input', () => this.validatePersona());
         this.generator.taskTextarea.addEventListener('input', () => this.validateTask());
         this.generator.personaToggle.forEach(radio => {
             radio.addEventListener('change', () => this.validatePersona());
@@ -365,15 +328,15 @@ class FormValidator {
                 return false;
             }
             this.clearFieldError(persona);
-            this.clearFieldError(this.generator.customTitle);
+            this.clearFieldError(this.generator.customDescription);
             return true;
         } else {
-            const customTitle = this.generator.customTitle;
-            if (!customTitle.value.trim()) {
-                this.setFieldError(customTitle, 'Please enter a persona title');
+            const customDescription = this.generator.customDescription;
+            if (!customDescription.value.trim()) {
+                this.setFieldError(customDescription, 'Please enter a persona description');
                 return false;
             }
-            this.clearFieldError(customTitle);
+            this.clearFieldError(customDescription);
             this.clearFieldError(this.generator.personaSelect);
             return true;
         }
@@ -445,40 +408,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         
-        // Ctrl/Cmd + S to download
-        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-            e.preventDefault();
-            if (!generator.downloadBtn.disabled) {
-                generator.downloadPrompt();
-            }
-        }
     });
 
-    // Add share functionality if Web Share API is supported
-    if (navigator.share) {
-        const shareBtn = document.createElement('button');
-        shareBtn.innerHTML = '<i class="fas fa-share"></i> Share';
-        shareBtn.className = 'copy-btn';
-        shareBtn.addEventListener('click', async () => {
-            const prompt = generator.generatePrompt();
-            if (prompt) {
-                try {
-                    await navigator.share({
-                        title: 'Environmental Data Prompt',
-                        text: prompt,
-                        url: generator.getShareableURL()
-                    });
-                } catch (err) {
-                    // Fallback to copying URL
-                    navigator.clipboard.writeText(generator.getShareableURL());
-                    generator.showToast('Shareable URL copied to clipboard!', 'success');
-                }
-            }
-        });
-        
-        const previewActions = document.querySelector('.preview-actions');
-        previewActions.appendChild(shareBtn);
-    }
 
     // Performance optimization: debounce preview updates
     let updateTimeout;

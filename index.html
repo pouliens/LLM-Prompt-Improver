@@ -11,9 +11,14 @@
 <body>
     <div class="container">
         <header class="header">
-            <h1><i class="fas fa-leaf"></i> Environmental Data Prompt Generator</h1>
-            <p class="subtitle">Create better prompts for environmental data analysis with AI assistants</p>
+            <h1>AI Prompt Generator</h1>
         </header>
+
+        <section class="explanation-section">
+            <p class="explanation-text">
+                Create better prompts by defining the persona, task, context, and format.
+            </p>
+        </section>
 
         <main class="main-content">
             <div class="form-section">
@@ -31,15 +36,11 @@
                         <div class="persona-toggle">
                             <label class="toggle-option">
                                 <input type="radio" name="personaType" value="predefined" checked>
-                                <span class="toggle-label">
-                                    <i class="fas fa-list"></i> Predefined Personas
-                                </span>
+                                <span class="toggle-label">Predefined</span>
                             </label>
                             <label class="toggle-option">
                                 <input type="radio" name="personaType" value="custom">
-                                <span class="toggle-label">
-                                    <i class="fas fa-edit"></i> Custom Persona
-                                </span>
+                                <span class="toggle-label">Custom</span>
                             </label>
                         </div>
 
@@ -49,8 +50,8 @@
                                 <option value="Environmental Data Scientist" data-description="Expert in statistical analysis, modeling, and interpretation of all types of environmental datasets">Environmental Data Scientist</option>
                                 <option value="Climate & Atmospheric Specialist" data-description="Expert in climate data, weather patterns, air quality, and atmospheric analysis">Climate & Atmospheric Specialist</option>
                                 <option value="Ecology & Biodiversity Analyst" data-description="Specialist in species data, ecosystem analysis, and biodiversity assessment">Ecology & Biodiversity Analyst</option>
-                                <option value="Environmental Policy & Sustainability Advisor" data-description="Translates environmental data into policy recommendations and sustainability strategies">Environmental Policy & Sustainability Advisor</option>
-                                <option value="Water & Marine Systems Specialist" data-description="Expert in hydrology, water quality, oceanography, and aquatic ecosystem data">Water & Marine Systems Specialist</option>
+                                <option value="Environmental Policy & Sustainability Advisor" data-description="Translates environmental data into policy recommendations and sustainability strategies">Policy & Sustainability Advisor</option>
+                                <option value="Water & Marine Systems Specialist" data-description="Expert in hydrology, water quality, oceanography, and aquatic ecosystem data">Water & Marine Specialist</option>
                                 <option value="Student/Researcher" data-description="Learning environmental science with guidance on data analysis and interpretation techniques">Student/Researcher</option>
                                 <option value="General Public/Citizen" data-description="Non-expert seeking clear, accessible explanations of environmental data and its implications">General Public/Citizen</option>
                             </select>
@@ -58,25 +59,14 @@
                         </div>
 
                         <div id="customPersonaSection" class="persona-section">
-                            <div class="custom-persona-inputs">
-                                <div class="input-group">
-                                    <label for="customPersonaTitle">
-                                        <i class="fas fa-tag"></i> Persona Title
-                                        <span class="tooltip" data-tooltip="e.g., Marine Biology Expert, Environmental Engineer">
-                                            <i class="fas fa-info-circle"></i>
-                                        </span>
-                                    </label>
-                                    <input type="text" id="customPersonaTitle" name="customPersonaTitle" placeholder="e.g., Marine Biology Expert, Environmental Engineer, GIS Specialist..." />
-                                </div>
-                                <div class="input-group">
-                                    <label for="customPersonaExpertise">
-                                        <i class="fas fa-brain"></i> Areas of Expertise
-                                        <span class="tooltip" data-tooltip="Describe the specific knowledge areas and skills this persona should have">
-                                            <i class="fas fa-info-circle"></i>
-                                        </span>
-                                    </label>
-                                    <textarea id="customPersonaExpertise" name="customPersonaExpertise" placeholder="e.g., Specializes in coastal ecosystem modeling, satellite imagery analysis, and marine biodiversity assessment. Expert in R, Python, and GIS tools..." rows="3"></textarea>
-                                </div>
+                            <div class="input-group">
+                                <label for="customPersonaDescription">
+                                    <i class="fas fa-user"></i> Custom Persona Description
+                                    <span class="tooltip" data-tooltip="Describe the expert persona you want the AI to act as, including their expertise and background">
+                                        <i class="fas fa-info-circle"></i>
+                                    </span>
+                                </label>
+                                <textarea id="customPersonaDescription" name="customPersonaDescription" placeholder="e.g., Marine Biology Expert specializing in coastal ecosystem modeling, satellite imagery analysis, and marine biodiversity assessment. Expert in R, Python, and GIS tools with 10+ years of field research experience..." rows="5"></textarea>
                             </div>
                         </div>
                     </div>
@@ -88,7 +78,7 @@
                                 <i class="fas fa-info-circle"></i>
                             </span>
                         </label>
-                        <textarea id="task" name="task" placeholder="e.g., Analyze temperature trends in my dataset, Create visualizations for air quality data, Interpret biodiversity survey results..." rows="3" required></textarea>
+                        <textarea id="task" name="task" placeholder="e.g., Analyze temperature trends in my dataset, Create visualizations for air quality data, Interpret biodiversity survey results..." rows="4" required></textarea>
                     </div>
 
                     <div class="form-group">
@@ -98,7 +88,7 @@
                                 <i class="fas fa-info-circle"></i>
                             </span>
                         </label>
-                        <textarea id="context" name="context" placeholder="e.g., Dataset contains 5 years of daily temperature readings from 20 weather stations across California. Looking to identify climate change impacts..." rows="4"></textarea>
+                        <textarea id="context" name="context" placeholder="e.g., Dataset contains 5 years of daily temperature readings from 20 weather stations across California. Looking to identify climate change impacts..." rows="5"></textarea>
                     </div>
 
                     <div class="form-group">
@@ -138,9 +128,6 @@
                     <div class="preview-actions">
                         <button id="copyBtn" class="copy-btn" disabled>
                             <i class="fas fa-copy"></i> Copy to Clipboard
-                        </button>
-                        <button id="downloadBtn" class="download-btn" disabled>
-                            <i class="fas fa-download"></i> Download
                         </button>
                     </div>
                 </div>

@@ -42,32 +42,34 @@ body {
 /* Header Styles */
 .header {
     text-align: center;
-    margin-bottom: 40px;
-    padding: 40px 20px;
+    margin-bottom: 30px;
+    padding: 25px 20px;
     background: var(--gradient-primary);
-    border-radius: 20px;
+    border-radius: 15px;
     color: white;
-    box-shadow: 0 10px 30px var(--shadow);
+    box-shadow: 0 5px 20px var(--shadow);
 }
 
 .header h1 {
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 15px;
+    font-size: 2rem;
+    font-weight: 600;
+    margin: 0;
 }
 
-.header h1 i {
-    font-size: 2.2rem;
-    color: var(--light-green);
+/* Explanation Section */
+.explanation-section {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px var(--shadow);
+    margin-bottom: 25px;
+    text-align: center;
 }
 
-.subtitle {
-    font-size: 1.1rem;
-    opacity: 0.9;
+.explanation-text {
+    font-size: 1rem;
+    color: var(--dark-gray);
+    margin: 0;
     font-weight: 400;
 }
 
@@ -99,12 +101,18 @@ body {
     display: flex;
     flex-direction: column;
     gap: 20px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .form-group {
     display: flex;
     flex-direction: column;
     gap: 8px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .form-group label {
@@ -162,6 +170,9 @@ input, select, textarea {
     font-family: inherit;
     transition: all 0.3s ease;
     background: white;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 input:focus, select:focus, textarea:focus {
@@ -177,6 +188,26 @@ textarea {
 
 select {
     cursor: pointer;
+    width: 100% !important;
+    display: block;
+}
+
+select option {
+    white-space: normal;
+    padding: 8px 12px;
+}
+
+/* Specific styling for persona select */
+#persona {
+    width: 100% !important;
+    display: block;
+}
+
+/* Ensure predefined persona section doesn't expand */
+#predefinedPersonaSection {
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
 }
 
 /* Persona Toggle Styles */
@@ -188,6 +219,8 @@ select {
     padding: 8px;
     border-radius: 10px;
     border: 1px solid var(--medium-gray);
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .toggle-option {
@@ -206,7 +239,6 @@ select {
 .toggle-label {
     display: flex;
     align-items: center;
-    gap: 8px;
     padding: 10px 16px;
     border-radius: 6px;
     font-weight: 500;
@@ -223,14 +255,14 @@ select {
     box-shadow: 0 2px 8px rgba(74, 124, 89, 0.3);
 }
 
-.toggle-label i {
-    font-size: 0.9rem;
-}
 
 /* Persona Section Styles */
 .persona-section {
     display: none;
     animation: fadeIn 0.3s ease;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .persona-section.active {
@@ -272,6 +304,11 @@ select {
     border-radius: 6px;
     margin-top: 5px;
     display: none;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .persona-description.show {
@@ -360,7 +397,7 @@ select {
     gap: 10px;
 }
 
-.copy-btn, .download-btn {
+.copy-btn {
     background: rgba(255, 255, 255, 0.2);
     color: white;
     border: 1px solid rgba(255, 255, 255, 0.3);
@@ -375,12 +412,12 @@ select {
     gap: 6px;
 }
 
-.copy-btn:hover:not(:disabled), .download-btn:hover:not(:disabled) {
+.copy-btn:hover:not(:disabled) {
     background: rgba(255, 255, 255, 0.3);
     transform: translateY(-1px);
 }
 
-.copy-btn:disabled, .download-btn:disabled {
+.copy-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
@@ -513,6 +550,10 @@ select {
     transform: translateX(0);
 }
 
+.toast.error {
+    background: #e74c3c;
+}
+
 /* Animations */
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(-10px); }
@@ -526,9 +567,12 @@ select {
     }
     
     .header h1 {
-        font-size: 2rem;
-        flex-direction: column;
-        gap: 10px;
+        font-size: 1.8rem;
+    }
+    
+    .explanation-section {
+        padding: 15px;
+        margin-bottom: 20px;
     }
     
     .main-content {
@@ -563,6 +607,42 @@ select {
         white-space: normal;
         max-width: 200px;
     }
+    
+    .persona-toggle {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .toggle-option {
+        width: 100%;
+    }
+    
+    .toggle-label {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+    }
+    
+    /* Ensure form elements don't overflow */
+    input, select, textarea {
+        max-width: 100%;
+        box-sizing: border-box;
+        min-width: 0;
+    }
+    
+    /* Mobile-specific select styling */
+    select {
+        font-size: 0.9rem;
+        padding: 10px 12px;
+    }
+    
+    select option {
+        font-size: 0.9rem;
+        padding: 6px 10px;
+    }
+    
+    .custom-persona-inputs {
+        gap: 12px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -570,22 +650,22 @@ select {
         font-size: 1.5rem;
     }
     
-    .subtitle {
-        font-size: 1rem;
+    .explanation-section {
+        padding: 15px;
     }
     
-    .copy-btn, .download-btn {
+    .explanation-text {
+        font-size: 0.9rem;
+    }
+    
+    .copy-btn {
         padding: 6px 12px;
         font-size: 0.8rem;
+        width: 100%;
+        justify-content: center;
     }
     
     .preview-actions {
-        flex-direction: column;
         width: 100%;
-    }
-    
-    .copy-btn, .download-btn {
-        width: 100%;
-        justify-content: center;
     }
 }
