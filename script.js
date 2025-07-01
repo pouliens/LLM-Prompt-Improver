@@ -70,21 +70,21 @@ class PromptGenerator {
         this.examples = {
             seismic: {
                 persona: 'Data Analyst',
-                task: 'Analyse seismic sensor data from BGS monitoring network and identify unusual activity patterns or potential earthquake precursors',
+                task: 'Analyse seismic sensor data from BGS monitoring network and identify unusual activity patterns or potential earthquake precursors.',
                 context: 'BGS seismic sensor data from 25 monitoring stations across the UK covering January-December 2025. Includes magnitude readings, frequency analysis, and location coordinates with 1-minute resolution.',
                 format: 'detailed analysis with step-by-step methodology',
                 artifact: true
             },
             groundwater: {
                 persona: 'Trend Analyst',
-                task: 'Evaluate groundwater level trends from BGS borehole monitoring network and forecast seasonal variations',
+                task: 'Evaluate groundwater level trends from BGS borehole monitoring network and forecast seasonal variations.',
                 context: 'BGS groundwater monitoring data from 150 boreholes across England and Wales, collected hourly from 2020-2025. Dataset includes water table depths, aquifer types, and rainfall correlation data.',
                 format: 'visualisations with interpretations',
                 artifact: true
             },
             temperature: {
                 persona: 'Monitoring Specialist',
-                task: 'Monitor soil temperature sensor data from BGS network and identify threshold exceedances and anomalous readings',
+                task: 'Monitor soil temperature sensor data from BGS network and identify threshold exceedances and anomalous readings.',
                 context: 'BGS soil temperature sensors deployed at 50 sites measuring at 10cm, 30cm, and 100cm depths. Real-time data collection from March 2025 with automated quality control flags.',
                 format: 'summary report with key findings',
                 artifact: false
@@ -232,7 +232,7 @@ class PromptGenerator {
         
         const instructions = {
             'Data Analyst': 'Focus on statistical patterns, trends, and anomalies in the sensor data. Provide quantitative insights with confidence levels and highlight significant changes or outliers.',
-            'Data Summarizer': 'Create concise, well-structured summaries of key findings. Present information in logical sections with clear headings and bullet points for easy scanning.',
+            'Data Summariser': 'Create concise, well-structured summaries of key findings. Present information in logical sections with clear headings and bullet points for easy scanning.',
             'Technical Interpreter': 'Translate technical sensor readings into clear, practical language. Explain what the measurements mean in real-world terms and their implications.',
             'Public Communicator': 'Present findings in everyday language that anyone can understand. Avoid technical jargon, use analogies and real-world comparisons, and explain why the data matters to people\'s daily lives.',
             'Monitoring Specialist': 'Focus on real-time analysis, threshold monitoring, and alert conditions. Identify when values exceed normal ranges and suggest monitoring protocols.',

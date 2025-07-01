@@ -550,7 +550,7 @@ select[multiple] option:checked {
 .example-card, .tip-card {
     background: var(--light-gray);
     padding: 20px;
-    border-radius: 10px;
+    border-radius: 4px;
     border-left: 4px solid var(--secondary-green);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
