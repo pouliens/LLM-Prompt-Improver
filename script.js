@@ -295,7 +295,7 @@ class PromptGenerator {
         }
 
         if (artifact) {
-            formatInstructions.push('create your response as an interactive artifact (code, visualization, or structured output) that can be displayed in an interactive window');
+            formatInstructions.push('create your response as an interactive artifact (code, visualisation, or structured output) that can be displayed in an interactive window');
         }
 
         if (formatInstructions.length > 0) {
