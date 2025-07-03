@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soil Gas Monitoring - BGS Site 1 GasClam</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <style>
+        :root {
+            --color-light-pink: #dbcccc;   /* 219,204,204 */
+            --color-blue-gray: #8faab3;    /* 143,170,179 */
+            --color-sage-green: #c4bd8b;   /* 196,189,139 */
+            --color-green: #81b14f;        /* 129,177,79 */
+            --color-dark-brown: #451b04;   /* 69,27,4 */
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #dda15e 0%, #bc6c25 100%);
+            color: #1a202c;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            color: #1a202c;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1), 0 0 0 1px rgba(255,255,255,0.2);
+        }
+        h1 {
+            text-align: center;
+            color: #2d3748;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            text-shadow: none;
+        }
+        .feynman-explanation {
+            color: white;
+            padding: 32px;
+            border-radius: 16px;
+            margin: 32px 0;
+            font-size: 1.1em;
+            line-height: 1.7;
+            box-shadow: 0 10px 25px rgba(79, 70, 229, 0.25);
+        }
+        .feynman-explanation--light-bg {
+            background: linear-gradient(135deg, #606c38 0%, #606c38 100%);
+        }
+        .feynman-explanation--dark-bg {
+            background: linear-gradient(135deg, #283618 0%, #283618 100%);
+        }
+        .feynman-explanation h3 {
+            color: #f8fafc;
+            margin-top: 0;
+            font-size: 1.4em;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        .chart-container {
+            margin: 32px 0;
+            padding: 32px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.05);
+        }
+        .axis {
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: #a0aec0;
+            shape-rendering: crispEdges;
+        }
+        .grid line {
+            stroke: #e2e8f0;
+            stroke-dasharray: 2,2;
+        }
+        .grid path {
+            stroke-width: 0;
+        }
+        .oxygen-line {
+            fill: none;
+            stroke: #ef4444;
+            stroke-width: 3;
+        }
+        .co2-line {
+            fill: none;
+            stroke: #22c55e;
+            stroke-width: 3;
+        }
+        .legend {
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .legend-oxygen {
+            fill: #ef4444;
+        }
+        .legend-co2 {
+            fill: #22c55e;
+        }
+        .tooltip {
+            position: absolute;
+            background: rgba(26, 32, 44, 0.95);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin: 32px 0;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #606c38 0%, #283618 100%);
+            color: white;
+            padding: 24px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.25);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(99, 102, 241, 0.35);
+        }
+        .stat-value {
+            font-size: 2.2em;
+            font-weight: 700;
+            margin: 12px 0;
+            letter-spacing: -0.025em;
+        }
+        .stat-label {
+            font-size: 0.95em;
+            opacity: 0.95;
+            font-weight: 500;
+        }
+        .dot {
+            fill: #666;
+            stroke: #fff;
+            stroke-width: 1.5px;
+        }
+        .oxygen-dot {
+            fill: #ef4444;
+        }
+        .co2-dot {
+            fill: #22c55e;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌍 Soil Gas Monitoring: The Underground Dance of Oxygen & Carbon Dioxide</h1>
+        
+        <p style="text-align: center; font-size: 1.2em; color: #4a5568; margin-bottom: 30px; font-weight: 400; letter-spacing: 0.025em;">
+            Real-time soil gas measurements from BGS Site 1 GasClam sensor, September 2021 • 
+            Tracking the inverse relationship between oxygen depletion and carbon dioxide production in subsurface environments
+        </p>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="oxygen-avg">--</div>
+                <div class="stat-label">Average Oxygen (%)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="co2-avg">--</div>
+                <div class="stat-label">Average CO₂ (%)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="oxygen-range">--</div>
+                <div class="stat-label">Oxygen Range (%)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="co2-range">--</div>
+                <div class="stat-label">CO₂ Range (%)</div>
+            </div>
+        </div>
+        
+        <div class="chart-container">
+            <div id="chart"></div>
+        </div>
+
+        <div class="feynman-explanation feynman-explanation--light-bg">
+            <h3>🧪 What's Really Happening Here? (In Simple Terms)</h3>
+            <p>Imagine you're watching the breath of the Earth itself! This little sensor buried in the soil is like a doctor's stethoscope, listening to what's happening underground. Just like you breathe in oxygen and breathe out carbon dioxide, the soil has its own "breathing" - but it's much more complex and fascinating.</p>
+            
+            <p><strong>The Beautiful Inverse Dance:</strong> Notice how when oxygen goes down, carbon dioxide often goes up, and vice versa? That's not a coincidence! It's like a seesaw - when biological processes in the soil consume oxygen (think of tiny microbes "eating" organic matter), they produce carbon dioxide as waste. It's the same process that happens in your body, but happening in billions of microscopic soil creatures!</p>
+            
+            <p><strong>Why This Matters:</strong> This underground breathing tells us about soil health, underground water movement, and even helps us understand climate change. When we see big changes in these gases, it's like the soil is telling us a story - maybe about seasonal changes, rainfall, or even human activities affecting the area.</p>
+        </div>
+
+        <div class="feynman-explanation feynman-explanation--dark-bg">
+            <h3>🤔 The Deeper Story</h3>
+            <p><strong>Those Wild Swings:</strong> See those dramatic changes in oxygen levels? That's nature doing its thing! Think of it like this - during certain periods, the soil gets more active. Maybe there's more water, more warmth, or more organic matter to decompose. All those tiny soil organisms wake up and start working harder, consuming oxygen and producing CO₂.</p>
+            
+            <p><strong>The Atmospheric Connection:</strong> Normal air is about 21% oxygen and 0.04% CO₂. But look at our soil measurements - they're telling a completely different story! The soil is like a chemical factory where the atmospheric composition gets completely rearranged by biological processes.</p>
+            
+            <p><strong>What Feynman Would Say:</strong> "The most remarkable thing about this data is not just what it shows, but what it teaches us about the invisible world beneath our feet. Every data point represents millions of tiny chemical reactions happening simultaneously - it's like watching the pulse of life itself!"</p>
+        </div>
+    </div>
+
+    <div class="tooltip" id="tooltip"></div>
+
+    <script>
+        // Data from BGS Site 1 GasClam - Oxygen readings
+        const oxygenData = [
+            {time: "2021-09-01T11:09:00Z", value: 16.9},
+            {time: "2021-09-01T13:08:00Z", value: 14.0},
+            {time: "2021-09-01T15:08:00Z", value: 13.4},
+            {time: "2021-09-01T17:08:00Z", value: 12.6},
+            {time: "2021-09-01T19:08:00Z", value: 13.0},
+            {time: "2021-09-01T21:08:00Z", value: 12.5},
+            {time: "2021-09-01T23:08:00Z", value: 11.1},
+            {time: "2021-09-02T01:08:00Z", value: 11.1},
+            {time: "2021-09-02T03:08:00Z", value: 10.3},
+            {time: "2021-09-02T05:08:00Z", value: 9.2},
+            {time: "2021-09-02T07:08:00Z", value: 8.9},
+            {time: "2021-09-02T09:08:00Z", value: 8.5},
+            {time: "2021-09-02T11:08:00Z", value: 8.2},
+            {time: "2021-09-02T13:08:00Z", value: 8.9},
+            {time: "2021-09-02T15:08:00Z", value: 8.5},
+            {time: "2021-09-02T17:08:00Z", value: 8.2},
+            {time: "2021-09-02T19:08:00Z", value: 8.0},
+            {time: "2021-09-02T21:08:00Z", value: 11.4},
+            {time: "2021-09-02T23:08:00Z", value: 10.4},
+            {time: "2021-09-03T01:08:00Z", value: 8.9},
+            {time: "2021-09-03T03:08:00Z", value: 8.7},
+            {time: "2021-09-03T05:08:00Z", value: 8.5},
+            {time: "2021-09-03T07:08:00Z", value: 8.4},
+            {time: "2021-09-03T09:08:00Z", value: 7.8},
+            {time: "2021-09-03T11:08:00Z", value: 7.7},
+            {time: "2021-09-03T13:08:00Z", value: 7.3},
+            {time: "2021-09-03T15:08:00Z", value: 7.9},
+            {time: "2021-09-03T17:08:00Z", value: 7.8},
+            {time: "2021-09-03T19:08:00Z", value: 6.6},
+            {time: "2021-09-03T21:08:00Z", value: 6.2},
+            {time: "2021-09-03T23:08:00Z", value: 6.2},
+            {time: "2021-09-04T01:08:00Z", value: 6.1},
+            {time: "2021-09-04T03:08:00Z", value: 8.9},
+            {time: "2021-09-04T05:08:00Z", value: 8.7},
+            {time: "2021-09-04T07:08:00Z", value: 8.0},
+            {time: "2021-09-04T09:08:00Z", value: 7.5},
+            {time: "2021-09-04T11:08:00Z", value: 8.0},
+            {time: "2021-09-04T13:08:00Z", value: 11.0},
+            {time: "2021-09-04T15:08:00Z", value: 8.3},
+            {time: "2021-09-04T17:08:00Z", value: 9.5},
+            {time: "2021-09-04T19:08:00Z", value: 9.0},
+            {time: "2021-09-04T21:08:00Z", value: 9.2},
+            {time: "2021-09-04T23:08:00Z", value: 10.6},
+            {time: "2021-09-05T01:08:00Z", value: 12.7},
+            {time: "2021-09-05T03:08:00Z", value: 14.0},
+            {time: "2021-09-05T05:08:00Z", value: 12.4},
+            {time: "2021-09-05T07:08:00Z", value: 12.1},
+            {time: "2021-09-05T09:08:00Z", value: 11.5},
+            {time: "2021-09-05T11:08:00Z", value: 12.2},
+            {time: "2021-09-05T13:08:00Z", value: 11.6},
+            {time: "2021-09-05T15:08:00Z", value: 14.1},
+            {time: "2021-09-05T17:08:00Z", value: 15.1},
+            {time: "2021-09-05T19:08:00Z", value: 15.3},
+            {time: "2021-09-05T21:08:00Z", value: 15.1},
+            {time: "2021-09-05T23:08:00Z", value: 14.5},
+            {time: "2021-09-06T01:08:00Z", value: 13.9},
+            {time: "2021-09-06T03:08:00Z", value: 13.8},
+            {time: "2021-09-06T05:08:00Z", value: 14.2},
+            {time: "2021-09-06T07:08:00Z", value: 14.8},
+            {time: "2021-09-06T09:08:00Z", value: 14.9},
+            {time: "2021-09-06T11:08:00Z", value: 15.4},
+            {time: "2021-09-06T13:08:00Z", value: 15.8},
+            {time: "2021-09-06T15:08:00Z", value: 16.4},
+            {time: "2021-09-06T17:08:00Z", value: 16.6},
+            {time: "2021-09-06T19:08:00Z", value: 16.1},
+            {time: "2021-09-06T21:08:00Z", value: 15.9},
+            {time: "2021-09-06T23:08:00Z", value: 15.6},
+            {time: "2021-09-07T01:08:00Z", value: 14.9},
+            {time: "2021-09-07T03:08:00Z", value: 14.4},
+            {time: "2021-09-07T05:08:00Z", value: 14.5},
+            {time: "2021-09-07T07:08:00Z", value: 14.5},
+            {time: "2021-09-07T09:08:00Z", value: 14.6},
+            {time: "2021-09-07T11:08:00Z", value: 15.5},
+            {time: "2021-09-07T13:08:00Z", value: 15.3},
+            {time: "2021-09-07T15:08:00Z", value: 15.3},
+            {time: "2021-09-07T17:08:00Z", value: 14.1},
+            {time: "2021-09-07T19:08:00Z", value: 14.2},
+            {time: "2021-09-07T21:08:00Z", value: 14.3},
+            {time: "2021-09-07T23:08:00Z", value: 14.2},
+            {time: "2021-09-08T01:08:00Z", value: 13.7},
+            {time: "2021-09-08T03:08:00Z", value: 13.3},
+            {time: "2021-09-08T05:08:00Z", value: 12.9},
+            {time: "2021-09-08T07:08:00Z", value: 13.0},
+            {time: "2021-09-08T09:08:00Z", value: 12.8},
+            {time: "2021-09-08T11:08:00Z", value: 13.2},
+            {time: "2021-09-08T13:08:00Z", value: 12.4},
+            {time: "2021-09-08T15:08:00Z", value: 12.2},
+            {time: "2021-09-08T17:08:00Z", value: 12.9},
+            {time: "2021-09-08T19:08:00Z", value: 13.2},
+            {time: "2021-09-08T21:08:00Z", value: 13.0},
+            {time: "2021-09-08T23:08:00Z", value: 12.5},
+            {time: "2021-09-09T01:08:00Z", value: 12.2},
+            {time: "2021-09-09T03:08:00Z", value: 11.7},
+            {time: "2021-09-09T05:08:00Z", value: 11.6},
+            {time: "2021-09-09T07:08:00Z", value: 12.5},
+            {time: "2021-09-09T09:08:00Z", value: 10.9},
+            {time: "2021-09-09T11:08:00Z", value: 10.2},
+            {time: "2021-09-09T13:08:00Z", value: 9.1},
+            {time: "2021-09-09T15:08:00Z", value: 7.8},
+            {time: "2021-09-09T17:08:00Z", value: 8.3}
+        ];
+
+        // Data from BGS Site 1 GasClam - CO2 readings
+        const co2Data = [
+            {time: "2021-09-01T11:09:00Z", value: 3.0},
+            {time: "2021-09-01T13:08:00Z", value: 5.5},
+            {time: "2021-09-01T15:08:00Z", value: 5.9},
+            {time: "2021-09-01T17:08:00Z", value: 6.4},
+            {time: "2021-09-01T19:08:00Z", value: 6.2},
+            {time: "2021-09-01T21:08:00Z", value: 6.6},
+            {time: "2021-09-01T23:08:00Z", value: 7.2},
+            {time: "2021-09-02T01:08:00Z", value: 7.2},
+            {time: "2021-09-02T03:08:00Z", value: 7.5},
+            {time: "2021-09-02T05:08:00Z", value: 8.1},
+            {time: "2021-09-02T07:08:00Z", value: 8.1},
+            {time: "2021-09-02T09:08:00Z", value: 8.3},
+            {time: "2021-09-02T11:08:00Z", value: 8.5},
+            {time: "2021-09-02T13:08:00Z", value: 8.0},
+            {time: "2021-09-02T15:08:00Z", value: 8.1},
+            {time: "2021-09-02T17:08:00Z", value: 8.2},
+            {time: "2021-09-02T19:08:00Z", value: 8.3},
+            {time: "2021-09-02T21:08:00Z", value: 7.0},
+            {time: "2021-09-02T23:08:00Z", value: 7.3},
+            {time: "2021-09-03T01:08:00Z", value: 8.1},
+            {time: "2021-09-03T03:08:00Z", value: 8.2},
+            {time: "2021-09-03T05:08:00Z", value: 8.5},
+            {time: "2021-09-03T07:08:00Z", value: 8.5},
+            {time: "2021-09-03T09:08:00Z", value: 8.7},
+            {time: "2021-09-03T11:08:00Z", value: 8.7},
+            {time: "2021-09-03T13:08:00Z", value: 8.9},
+            {time: "2021-09-03T15:08:00Z", value: 8.7},
+            {time: "2021-09-03T17:08:00Z", value: 8.6},
+            {time: "2021-09-03T19:08:00Z", value: 9.2},
+            {time: "2021-09-03T21:08:00Z", value: 9.4},
+            {time: "2021-09-03T23:08:00Z", value: 9.3},
+            {time: "2021-09-04T01:08:00Z", value: 9.3},
+            {time: "2021-09-04T03:08:00Z", value: 8.1},
+            {time: "2021-09-04T05:08:00Z", value: 8.5},
+            {time: "2021-09-04T07:08:00Z", value: 8.6},
+            {time: "2021-09-04T09:08:00Z", value: 9.0},
+            {time: "2021-09-04T11:08:00Z", value: 8.8},
+            {time: "2021-09-04T13:08:00Z", value: 7.2},
+            {time: "2021-09-04T15:08:00Z", value: 8.7},
+            {time: "2021-09-04T17:08:00Z", value: 8.2},
+            {time: "2021-09-04T19:08:00Z", value: 8.3},
+            {time: "2021-09-04T21:08:00Z", value: 8.3},
+            {time: "2021-09-04T23:08:00Z", value: 7.6},
+            {time: "2021-09-05T01:08:00Z", value: 6.6},
+            {time: "2021-09-05T03:08:00Z", value: 5.8},
+            {time: "2021-09-05T05:08:00Z", value: 6.9},
+            {time: "2021-09-05T07:08:00Z", value: 7.1},
+            {time: "2021-09-05T09:08:00Z", value: 7.4},
+            {time: "2021-09-05T11:08:00Z", value: 7.1},
+            {time: "2021-09-05T13:08:00Z", value: 7.5},
+            {time: "2021-09-05T15:08:00Z", value: 5.8},
+            {time: "2021-09-05T17:08:00Z", value: 5.2},
+            {time: "2021-09-05T19:08:00Z", value: 5.1},
+            {time: "2021-09-05T21:08:00Z", value: 5.2},
+            {time: "2021-09-05T23:08:00Z", value: 5.6},
+            {time: "2021-09-06T01:08:00Z", value: 5.9},
+            {time: "2021-09-06T03:08:00Z", value: 6.1},
+            {time: "2021-09-06T05:08:00Z", value: 5.7},
+            {time: "2021-09-06T07:08:00Z", value: 5.2},
+            {time: "2021-09-06T09:08:00Z", value: 5.2},
+            {time: "2021-09-06T11:08:00Z", value: 4.9},
+            {time: "2021-09-06T13:08:00Z", value: 4.8},
+            {time: "2021-09-06T15:08:00Z", value: 4.4},
+            {time: "2021-09-06T17:08:00Z", value: 4.3},
+            {time: "2021-09-06T19:08:00Z", value: 4.6},
+            {time: "2021-09-06T21:08:00Z", value: 4.8},
+            {time: "2021-09-06T23:08:00Z", value: 5.0},
+            {time: "2021-09-07T01:08:00Z", value: 5.5},
+            {time: "2021-07T03:08:00Z", value: 5.8},
+            {time: "2021-09-07T05:08:00Z", value: 5.7},
+            {time: "2021-09-07T07:08:00Z", value: 5.6},
+            {time: "2021-09-07T09:08:00Z", value: 5.3},
+            {time: "2021-09-07T11:08:00Z", value: 4.9},
+            {time: "2021-09-07T13:08:00Z", value: 5.1},
+            {time: "2021-09-07T15:08:00Z", value: 5.1},
+            {time: "2021-09-07T17:08:00Z", value: 5.8},
+            {time: "2021-09-07T19:08:00Z", value: 5.7},
+            {time: "2021-09-07T21:08:00Z", value: 5.7},
+            {time: "2021-09-07T23:08:00Z", value: 5.8},
+            {time: "2021-09-08T01:08:00Z", value: 5.9},
+            {time: "2021-09-08T03:08:00Z", value: 6.3},
+            {time: "2021-09-08T05:08:00Z", value: 6.4},
+            {time: "2021-09-08T07:08:00Z", value: 6.5},
+            {time: "2021-09-08T09:08:00Z", value: 6.6},
+            {time: "2021-09-08T11:08:00Z", value: 6.4},
+            {time: "2021-09-08T13:08:00Z", value: 6.8},
+            {time: "2021-09-08T15:08:00Z", value: 6.8},
+            {time: "2021-09-08T17:08:00Z", value: 6.5},
+            {time: "2021-09-08T19:08:00Z", value: 6.3},
+            {time: "2021-09-08T21:08:00Z", value: 6.3},
+            {time: "2021-09-08T23:08:00Z", value: 6.7},
+            {time: "2021-09-09T01:08:00Z", value: 6.7},
+            {time: "2021-09-09T03:08:00Z", value: 7.0},
+            {time: "2021-09-09T05:08:00Z", value: 7.1},
+            {time: "2021-09-09T07:08:00Z", value: 6.6},
+            {time: "2021-09-09T09:08:00Z", value: 7.4},
+            {time: "2021-09-09T11:08:00Z", value: 7.8},
+            {time: "2021-09-09T13:08:00Z", value: 8.3},
+            {time: "2021-09-09T15:08:00Z", value: 8.7},
+            {time: "2021-09-09T17:08:00Z", value: 8.3}
+        ];
+
+        // Set up dimensions and margins
+        const margin = {top: 20, right: 80, bottom: 50, left: 60};
+        const containerWidth = document.getElementById('chart').offsetWidth;
+        const width = containerWidth - margin.left - margin.right;
+        const height = 500 - margin.top - margin.bottom;
+
+        // Parse time format
+        const parseTime = d3.timeParse("%Y-%m-%dT%H:%M:%SZ");
+        const formatTime = d3.timeFormat("%b %d, %H:%M");
+
+        // Process data
+        oxygenData.forEach(d => {
+            d.time = parseTime(d.time);
+        });
+        co2Data.forEach(d => {
+            d.time = parseTime(d.time);
+        });
+
+        // Create scales
+        const xScale = d3.scaleTime()
+            .domain(d3.extent(oxygenData, d => d.time))
+            .range([0, width]);
+
+        const yScale = d3.scaleLinear()
+            .domain([0, d3.max([...oxygenData, ...co2Data], d => d.value)])
+            .range([height, 0]);
+
+        // Create line generators
+        const oxygenLine = d3.line()
+            .x(d => xScale(d.time))
+            .y(d => yScale(d.value))
+            .curve(d3.curveMonotoneX);
+
+        const co2Line = d3.line()
+            .x(d => xScale(d.time))
+            .y(d => yScale(d.value))
+            .curve(d3.curveMonotoneX);
+
+        // Create SVG
+        const svg = d3.select("#chart")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        // Create tooltip
+        const tooltip = d3.select("#tooltip");
+
+        // Add grid lines
+        svg.append("g")
+            .attr("class", "grid")
+            .attr("transform", `translate(0,${height})`)
+            .call(d3.axisBottom(xScale)
+                .tickSize(-height)
+                .tickFormat("")
+            );
+
+        svg.append("g")
+            .attr("class", "grid")
+            .call(d3.axisLeft(yScale)
+                .tickSize(-width)
+                .tickFormat("")
+            );
+
+        // Add axes
+        svg.append("g")
+            .attr("class", "axis")
+            .attr("transform", `translate(0,${height})`)
+            .call(d3.axisBottom(xScale)
+                .tickFormat(d3.timeFormat("%b %d")));
+
+        svg.append("g")
+            .attr("class", "axis")
+            .call(d3.axisLeft(yScale));
+
+        // Add axis labels
+        svg.append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 0 - margin.left)
+            .attr("x", 0 - (height / 2))
+            .attr("dy", "1em")
+            .style("text-anchor", "middle")
+            .style("font-size", "14px")
+            .style("font-weight", "bold")
+            .text("Gas Concentration (%)");
+
+        svg.append("text")
+            .attr("transform", `translate(${width / 2}, ${height + margin.bottom - 10})`)
+            .style("text-anchor", "middle")
+            .style("font-size", "14px")
+            .style("font-weight", "bold")
+            .text("Time (September 2021)");
+
+        // Add oxygen line
+        svg.append("path")
+            .datum(oxygenData)
+            .attr("class", "oxygen-line")
+            .attr("d", oxygenLine);
+
+        // Add CO2 line
+        svg.append("path")
+            .datum(co2Data)
+            .attr("class", "co2-line")
+            .attr("d", co2Line);
+
+        // Add data points with tooltips
+        svg.selectAll(".oxygen-dot")
+            .data(oxygenData)
+            .enter().append("circle")
+            .attr("class", "dot oxygen-dot")
+            .attr("cx", d => xScale(d.time))
+            .attr("cy", d => yScale(d.value))
+            .attr("r", 3)
+            .on("mouseover", function(event, d) {
+                tooltip.transition()
+                    .duration(200)
+                    .style("opacity", .9);
+                tooltip.html(`<strong>Oxygen</strong><br/>
+                            Time: ${formatTime(d.time)}<br/>
+                            Value: ${d.value}%`)
+                    .style("left", (event.pageX + 10) + "px")
+                    .style("top", (event.pageY - 28) + "px");
+            })
+            .on("mouseout", function(d) {
+                tooltip.transition()
+                    .duration(500)
+                    .style("opacity", 0);
+            });
+
+        svg.selectAll(".co2-dot")
+            .data(co2Data)
+            .enter().append("circle")
+            .attr("class", "dot co2-dot")
+            .attr("cx", d => xScale(d.time))
+            .attr("cy", d => yScale(d.value))
+            .attr("r", 3)
+            .on("mouseover", function(event, d) {
+                tooltip.transition()
+                    .duration(200)
+                    .style("opacity", .9);
+                tooltip.html(`<strong>Carbon Dioxide</strong><br/>
+                            Time: ${formatTime(d.time)}<br/>
+                            Value: ${d.value}%`)
+                    .style("left", (event.pageX + 10) + "px")
+                    .style("top", (event.pageY - 28) + "px");
+            })
+            .on("mouseout", function(d) {
+                tooltip.transition()
+                    .duration(500)
+                    .style("opacity", 0);
+            });
+
+        // Add legend
+        const legend = svg.append("g")
+            .attr("class", "legend")
+            .attr("transform", `translate(${width - 120}, 20)`);
+
+        legend.append("line")
+            .attr("x1", 0)
+            .attr("x2", 20)
+            .attr("y1", 0)
+            .attr("y2", 0)
+            .style("stroke", "#ef4444")
+            .style("stroke-width", 3);
+
+        legend.append("text")
+            .attr("x", 25)
+            .attr("y", 0)
+            .attr("dy", "0.35em")
+            .attr("class", "legend-oxygen")
+            .text("Oxygen (O₂)");
+
+        legend.append("line")
+            .attr("x1", 0)
+            .attr("x2", 20)
+            .attr("y1", 20)
+            .attr("y2", 20)
+            .style("stroke", "#22c55e")
+            .style("stroke-width", 3);
+
+        legend.append("text")
+            .attr("x", 25)
+            .attr("y", 20)
+            .attr("dy", "0.35em")
+            .attr("class", "legend-co2")
+            .text("Carbon Dioxide (CO₂)");
+
+        // Calculate statistics
+        const oxygenValues = oxygenData.map(d => d.value);
+        const co2Values = co2Data.map(d => d.value);
+
+        const oxygenAvg = d3.mean(oxygenValues);
+        const co2Avg = d3.mean(co2Values);
+        const oxygenMin = d3.min(oxygenValues);
+        const oxygenMax = d3.max(oxygenValues);
+        const co2Min = d3.min(co2Values);
+        const co2Max = d3.max(co2Values);
+
+        // Update statistics in the cards
+        document.getElementById("oxygen-avg").textContent = oxygenAvg.toFixed(1);
+        document.getElementById("co2-avg").textContent = co2Avg.toFixed(1);
+        document.getElementById("oxygen-range").textContent = `${oxygenMin.toFixed(1)} - ${oxygenMax.toFixed(1)}`;
+        document.getElementById("co2-range").textContent = `${co2Min.toFixed(1)} - ${co2Max.toFixed(1)}`;
+    </script>
+</body>
+</html>
