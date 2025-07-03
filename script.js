@@ -378,7 +378,8 @@ class PromptGenerator {
             'Public Communicator': 'Present findings in everyday language that anyone can understand. Avoid technical jargon, use analogies and real-world comparisons, and explain why the data matters to people\'s daily lives.',
             'Monitoring Specialist': 'Focus on real-time analysis, threshold monitoring, and alert conditions. Identify when values exceed normal ranges and suggest monitoring protocols.',
             'Trend Analyst': 'Analyse temporal patterns, seasonal variations, and long-term trends. Provide forecasting insights and identify emerging patterns in the data.',
-            'Report Generator': 'Create comprehensive, professional reports with visualisations. Structure findings with executive summaries, detailed analysis, and actionable recommendations.'
+            'Report Generator': 'Create comprehensive, professional reports with visualisations. Structure findings with executive summaries, detailed analysis, and actionable recommendations.',
+            'Richard Feynman': 'Explain complex scientific concepts in simple, relatable language, using vivid analogies. Make the topic engaging and fascinating, as if you’re telling a story to a curious friend. Channel the spirit of Richard Feynman.'
         };
 
         return instructions[persona] || '';
