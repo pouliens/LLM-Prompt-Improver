@@ -41,6 +41,97 @@
             letter-spacing: -0.025em;
             text-shadow: none;
         }
+                
+        /* Artifact Context Section */
+        .artifact-context-section {
+            margin-bottom: 32px;
+        }
+
+        .context-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.05);
+            overflow: hidden;
+            /* border-left: 4px solid var(--color-green); */
+        }
+
+        .context-header {
+            background: linear-gradient(135deg, var(--color-green) 0%, var(--color-sage-green) 100%);
+            color: white;
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .context-header i {
+            font-size: 1.2rem;
+        }
+
+        .context-header h3 {
+            margin: 0;
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .context-content {
+            padding: 24px;
+        }
+
+        .context-row {
+            display: flex;
+            margin-bottom: 16px;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .context-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .context-row--inline {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 64px;
+            margin-bottom: 16px;
+        }
+
+        .context-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .context-label {
+            font-weight: 600;
+            color: var(--color-green);
+            min-width: 60px;
+            flex-shrink: 0;
+            font-size: 0.95em;
+        }
+
+        .context-label--inline {
+            font-weight: 600;
+            color: var(--color-green);
+            font-size: 0.95em;
+            min-width: 60px;
+            flex-shrink: 0;
+        }
+
+        .context-value {
+            color: #2d3748;
+            line-height: 1.6;
+            flex: 1;
+            font-size: 0.95em;
+        }
+
+        .context-value--inline {
+            color: #2d3748;
+            font-size: 0.95em;
+            white-space: nowrap;
+        }
+
         .feynman-explanation {
             color: white;
             padding: 32px;
@@ -166,12 +257,42 @@
 </head>
 <body>
     <div class="container">
-        <h1>🌍 Soil Gas Monitoring: The Underground Dance of Oxygen & Carbon Dioxide</h1>
+        <h1>🌍 Soil Gas Monitoring: <br>The Underground Dance of Oxygen & Carbon Dioxide</h1>
+
         
-        <p style="text-align: center; font-size: 1.2em; color: #4a5568; margin-bottom: 30px; font-weight: 400; letter-spacing: 0.025em;">
+        <section class="artifact-context-section">
+            <div class="context-card">
+                <div class="context-header">
+                    <i class="fas fa-info-circle"></i>
+                    <h3>Prompt Details</h3>
+                </div>
+                <div class="context-content">
+                    <div class="context-row--inline">
+                        <div class="context-item">
+                            <span class="context-label--inline">Client:</span>
+                            <span class="context-value--inline">Claude Desktop</span>
+                        </div>
+                        <div class="context-item">
+                            <span class="context-label--inline">Model:</span>
+                            <span class="context-value--inline">Claude Sonnet 4</span>
+                        </div>
+                        <div class="context-item">
+                            <span class="context-label--inline">Date:</span>
+                            <span class="context-value--inline">3 July 2025</span>
+                        </div>
+                    </div>
+                    <div class="context-row">
+                        <span class="context-label">Prompt:</span>
+                        <span class="context-value">Get the last 100 readings for oxygen and carbon dioxide from Soil Gas Monitoring sensor in BGS Site 1 GasClam. Create a chart in artifact window. Explain this data in simple, relatable language, using vivid analogies. Make the topic engaging and fascinating, as if you're telling a story to a curious friend. Channel the spirit of Richard Feynman.</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- <p style="text-align: center; font-size: 1.2em; color: #4a5568; margin-bottom: 30px; font-weight: 400; letter-spacing: 0.025em;">
             Real-time soil gas measurements from BGS Site 1 GasClam sensor, September 2021 • 
             Tracking the inverse relationship between oxygen depletion and carbon dioxide production in subsurface environments
-        </p>
+        </p> -->
 
         <div class="stats-grid">
             <div class="stat-card">
